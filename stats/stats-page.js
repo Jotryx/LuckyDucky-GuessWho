@@ -58,9 +58,11 @@
       return d;
     }
     const ol = document.createElement("ol");
+    if (!pics) ol.className = "noPics";
     rows.slice(0, 5).forEach(([name, n], i) => {
       const li = document.createElement("li");
-      li.innerHTML = `<span class="rank">${i + 1}</span><span class="pic blank"></span><span class="name"></span><span class="count"></span>`;
+      // lists without pictures (like rarities) get no picture box at all
+      li.innerHTML = `<span class="rank">${i + 1}</span>${pics ? '<span class="pic blank"></span>' : ""}<span class="name"></span><span class="count"></span>`;
       const src = pics && pics.get(name);
       if (src) {
         const img = new Image(); img.className = "pic" + (wide ? " wide" : ""); img.alt = ""; img.loading = "lazy"; img.src = src;
