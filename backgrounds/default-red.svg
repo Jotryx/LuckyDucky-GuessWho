@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- one repeating tile: a diamond checkerboard, a crown medallion and a gem on alternate dark diamonds -->
+  <rect width="400" height="400" fill="rgb(193,32,34)"/>
+  <g fill="rgb(179,29,31)">
+    <polygon points="100,0 200,100 100,200 0,100"/>
+    <polygon points="300,0 400,100 300,200 200,100"/>
+    <polygon points="100,200 200,300 100,400 0,300"/>
+    <polygon points="300,200 400,300 300,400 200,300"/>
+  </g>
+  <g transform="translate(100 100)" fill="rgb(218,41,43)">
+    <circle r="32.5" fill="none" stroke="rgb(218,41,43)" stroke-width="5.5"/>
+    <path d="M-16 5 L-17.5 -8.5 L-8 -1.5 L0 -12.5 L8 -1.5 L17.5 -8.5 L16 5 Z"/>
+    <rect x="-15.5" y="8" width="31" height="5" rx="2.2"/>
+    <circle cy="-15" r="3.3"/>
+    <circle cx="-17.5" cy="-10" r="2.5"/>
+    <circle cx="17.5" cy="-10" r="2.5"/>
+  </g>
+  <g transform="translate(300 300)">
+    <path d="M-19 -19 L19 -19 L31 -6.5 L0 26 L-31 -6.5 Z" fill="rgb(218,41,43)"/>
+    <path d="M-31 -6.5 H31 M-19 -19 L-11 -6.5 L0 26 L11 -6.5 L19 -19 M-11 -6.5 L0 -19 L11 -6.5"
+      fill="none" stroke="rgb(190,31,33)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+  </g>
+</svg>

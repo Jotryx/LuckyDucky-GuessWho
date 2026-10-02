@@ -354,29 +354,51 @@
 
   // Backgrounds
   const backgrounds = window.BACKGROUNDS || [];
+  // The two default backgrounds are crisp SVG tiles (sharp at any size); cutscenes are photos.
+  const TILE = 340;   // on-screen size of one pattern tile, in px
+  const DEFAULTS = [
+    { name: "Default blue", src: "backgrounds/default-blue.svg", shade: "rgba(12, 8, 45, 0.22)", tint: "rgba(14, 8, 40, 0.4)" },
+    { name: "Default red", src: "backgrounds/default-red.svg", shade: "rgba(50, 0, 5, 0.12)", tint: "rgba(45, 4, 8, 0.38)" },
+  ];
   function applyBg() {
-    const bg = backgrounds.find((b) => b.src === state.bg);
-    if (!bg) state.bg = null;
-    $("scene").style.backgroundImage = bg ? `url("${bg.src}")` : "";
-    document.documentElement.style.setProperty("--scene", bg ? `url("${bg.src}")` : "none");
-    document.body.classList.toggle("has-bg", !!bg);
-    $("bgList").querySelectorAll(".bgOpt").forEach((o) => o.setAttribute("aria-pressed", o.dataset.src === (state.bg || "")));
+    const bg = DEFAULTS.find((b) => b.src === state.bg) || backgrounds.find((b) => b.src === state.bg) || DEFAULTS[0];
+    if (bg === DEFAULTS[0]) state.bg = null;          // null = the standard blue
+    const tile = DEFAULTS.includes(bg), scene = $("scene").style, root = document.documentElement.style;
+    if (tile) {
+      // a soft darkening towards the bottom right, over the repeating pattern
+      scene.backgroundImage = `linear-gradient(160deg, transparent 35%, ${bg.shade}), url("${bg.src}")`;
+      scene.backgroundSize = `100% 100%, ${TILE}px ${TILE}px`;
+      scene.backgroundRepeat = "no-repeat, repeat";
+      scene.backgroundPosition = "0 0, 0 0";
+    } else {
+      scene.backgroundImage = `url("${bg.src}")`;
+      scene.backgroundSize = "cover"; scene.backgroundRepeat = "no-repeat"; scene.backgroundPosition = "center";
+    }
+    // the tray shows the same background, darker
+    root.setProperty("--scene", `url("${bg.src}")`);
+    root.setProperty("--scene-size", tile ? `${TILE}px ${TILE}px` : "cover");
+    root.setProperty("--scene-repeat", tile ? "repeat" : "no-repeat");
+    root.setProperty("--scene-pos", tile ? "0 0" : "center");
+    root.setProperty("--tray-tint", tile ? bg.tint : "rgba(14, 8, 40, 0.4)");
+    document.body.classList.toggle("has-bg", !tile);   // photos get a light overlay
+    $("bgList").querySelectorAll(".bgOpt").forEach((o) => o.setAttribute("aria-pressed", o.dataset.src === bg.src));
   }
-  function bgOption(name, src, thumb) {
+  function bgOption(name, src, tiled) {
     const b = document.createElement("button");
-    b.type = "button"; b.className = "bgOpt"; b.dataset.src = src; b.title = name;
-    b.innerHTML = `<span class="thumb"></span><span class="lbl"></span>`;
-    if (thumb) { const img = new Image(); img.loading = "lazy"; img.alt = ""; img.src = thumb; b.firstChild.append(img); }
-    b.querySelector(".lbl").textContent = name;
-    b.addEventListener("click", () => { state.bg = src || null; save(); applyBg(); });
+    b.type = "button"; b.className = "bgOpt"; b.dataset.src = src;
+    b.setAttribute("aria-label", name);   // no visible name, just the picture
+    b.innerHTML = `<span class="thumb"></span>`;
+    if (tiled) b.firstChild.style.background = `url("${src}") 0 0 / 80px 80px repeat`;
+    else { const img = new Image(); img.loading = "lazy"; img.alt = ""; img.src = src; b.firstChild.append(img); }
+    b.addEventListener("click", () => { state.bg = src === DEFAULTS[0].src ? null : src; save(); applyBg(); });
     return b;
   }
   function buildBgList() {
     const list = $("bgList");
-    const groups = new Map([["", [bgOption("Default", "", null)]]]);
+    const groups = new Map([["", DEFAULTS.map((d) => bgOption(d.name, d.src, true))]]);
     backgrounds.forEach((bg) => {
       if (!groups.has(bg.group)) groups.set(bg.group, []);
-      groups.get(bg.group).push(bgOption(bg.name, bg.src, bg.src));
+      groups.get(bg.group).push(bgOption(bg.name, bg.src, false));
     });
     groups.forEach((items, name) => {
       if (name) { const h = document.createElement("h3"); h.textContent = name; list.append(h); }

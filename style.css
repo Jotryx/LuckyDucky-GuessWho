@@ -1,4 +1,5 @@
 :root {
+  --logo-w: clamp(220px, min(38vw, 62vh), 560px);   /* logo width: follows the window's width and height */
   --indigo: #3b2fa3;
   --indigo-deep: #2a1f80;
   --tan: #dcb994;
@@ -41,12 +42,7 @@ body {
   justify-content: center;
   color: var(--ink);
   font: 500 1rem/1.5 var(--body);
-  background:
-    radial-gradient(70rem 50rem at 50% 40%, transparent 40%, rgba(10, 6, 50, 0.45)),
-    repeating-linear-gradient(45deg, transparent 0 88px, rgba(255, 255, 255, 0.045) 88px 91px),
-    repeating-linear-gradient(-45deg, transparent 0 88px, rgba(255, 255, 255, 0.045) 88px 91px),
-    linear-gradient(170deg, var(--indigo), var(--indigo-deep));
-  background-attachment: fixed;
+  background: rgb(54, 49, 148);   /* only visible for a moment before the background loads */
 }
 
 [hidden] {
@@ -71,14 +67,8 @@ body {
 #scene {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -2;   /* behind the floating toppings (z-index -1) */
   background: center/cover no-repeat;
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-
-body.has-bg #scene {
-  opacity: 1;
 }
 
 body.has-bg #scene::after {
@@ -99,7 +89,7 @@ body.has-bg #scene::after {
   height: 100%;
   max-height: 1240px;   /* on very tall screens it stops growing and sits centred */
   margin: 0 auto;
-  padding: clamp(4.5rem, 8vw, 6.5rem) clamp(16px, 2vw, 2rem) clamp(1rem, 3vh, 2rem);
+  padding: clamp(3.4rem, min(8vw, 12vh), 6.5rem) clamp(16px, 2vw, 2rem) clamp(0.8rem, 3vh, 2rem);
 }
 
 /* the folder's shadow: plain box shadows (a drop-shadow filter would repaint the whole
@@ -124,7 +114,7 @@ body.has-bg #scene::after {
   flex-direction: column;
   min-height: 0;
   border-radius: 26px 26px 0 26px;
-  padding: clamp(5.2rem, 9vw, 7.2rem) clamp(14px, 2.4vw, 2.2rem) clamp(14px, 2.4vw, 2.2rem);
+  padding: clamp(4.2rem, min(9vw, 15vh), 7.2rem) clamp(14px, 2.4vw, 2.2rem) clamp(14px, 2.4vw, 2.2rem);
 }
 
 .choice {
@@ -246,7 +236,7 @@ body.has-bg #scene::after {
 
 .logoImg {
   display: block;
-  width: clamp(260px, 38vw, 560px);
+  width: var(--logo-w);
   height: auto;
   filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.2));
 }
@@ -315,12 +305,11 @@ body.has-bg #scene::after {
   flex: 1;
   border: 4px solid var(--tray-edge);
   /* a darker window onto the page background: the chosen cutscene, or the indigo diamonds */
+  /* the same background as the page, lined up with it (fixed) and tinted darker */
   background:
-    linear-gradient(rgba(14, 8, 40, 0.4), rgba(14, 8, 40, 0.4)),   /* lighter tint, so the scene stays visible */
-    var(--scene, none) center/cover no-repeat,
-    repeating-linear-gradient(45deg, transparent 0 44px, rgba(255, 255, 255, 0.05) 44px 46px),
-    repeating-linear-gradient(-45deg, transparent 0 44px, rgba(255, 255, 255, 0.05) 44px 46px),
-    linear-gradient(170deg, var(--indigo), var(--indigo-deep));
+    linear-gradient(var(--tray-tint, rgba(14, 8, 40, 0.4)), var(--tray-tint, rgba(14, 8, 40, 0.4))),
+    var(--scene, none) var(--scene-pos, center) / var(--scene-size, cover) var(--scene-repeat, no-repeat) fixed,
+    rgb(40, 36, 110);
   border-radius: 6px;
   padding: 12px;
   box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.35);
@@ -478,7 +467,9 @@ body[data-mode="board"] .card[aria-pressed="true"]::after {
   border-radius: 50%;
   margin: 0.4rem 0 0.9rem;
   background: radial-gradient(circle at 50% 38%, #f1d6b2, #c99a6a 75%);
-  box-shadow: 0 0 0 4px var(--wood-dark), 0 8px 0 4px rgba(94, 53, 25, 0.35);
+  box-shadow:
+    0 0 0 clamp(2px, 0.45vh, 4px) var(--wood-dark),
+    0 clamp(4px, 0.9vh, 8px) 0 clamp(2px, 0.45vh, 4px) rgba(94, 53, 25, 0.35);
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -492,10 +483,11 @@ body[data-mode="board"] .card[aria-pressed="true"]::after {
   border-radius: 50%;
   pointer-events: none;
   z-index: 2;
-  border: 14px solid #a8723f;
+  /* the ring follows the window height: thin on short windows, so the cookie gets more room */
+  border: clamp(5px, 1.6vh, 14px) solid #a8723f;
   box-shadow:
-    inset 0 0 0 4px var(--wood-dark),
-    inset 0 12px 20px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 clamp(2px, 0.45vh, 4px) var(--wood-dark),
+    inset 0 clamp(5px, 1.4vh, 12px) clamp(8px, 2.3vh, 20px) rgba(0, 0, 0, 0.4),
     inset 0 -6px 14px rgba(255, 235, 200, 0.25);
   background: radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.28), transparent 32%);
 }
@@ -554,7 +546,7 @@ body[data-mode="board"] .hint {
 }
 
 .controls + .controls {
-  padding-top: 0.8rem;
+  padding-top: 0;   /* same gap between button groups as inside them */
 }
 
 /* buttons */
@@ -704,9 +696,7 @@ body[data-mode="board"] .hint {
   aspect-ratio: 16/9;
   border-radius: 7px;
   overflow: hidden;
-  background:
-    repeating-linear-gradient(45deg, transparent 0 20px, rgba(255, 255, 255, 0.08) 20px 22px),
-    linear-gradient(170deg, var(--indigo), var(--indigo-deep));
+  background: rgb(54, 49, 148);
 }
 
 .bgOpt img {
@@ -716,16 +706,6 @@ body[data-mode="board"] .hint {
   display: block;
 }
 
-.bgOpt .lbl {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 /* desktop: the panel measures itself, so the portrait can never be taller than the panel is wide */
 @media (min-width: 861px) {
@@ -758,12 +738,8 @@ body[data-mode="board"] .hint {
   }
 
   .controls {
-    gap: 0.35rem;
-    margin-top: 0.3rem;
-  }
-
-  .controls + .controls {
-    padding-top: 0.4rem;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
   }
 
   .guessBtn {
@@ -808,17 +784,94 @@ body[data-mode="board"] .hint {
   }
 
   .controls {
-    gap: 0.3rem;
-    margin-top: 0.25rem;
-  }
-
-  .controls + .controls {
-    padding-top: 0.25rem;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
   }
 
   .ghost {
     padding: 0.28rem 0.7rem;
     font-size: 0.78rem;
+  }
+}
+
+/* very short windows (e.g. a laptop with the browser zoomed in): everything around the portrait shrinks */
+@media (min-width: 861px) and (max-height: 580px) {
+  .choice {
+    margin-top: 2.6rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .choiceTitle {
+    font-size: 1.45rem;
+    margin: 0.2rem 0 0.1rem;
+  }
+
+  .portrait {
+    min-height: 104px;
+    margin: 0.2rem 0 0.25rem;
+  }
+
+  .choiceName {
+    font-size: 1.05rem;
+  }
+
+  .hint,
+  body[data-mode="board"] .hint {
+    margin: 0 0 0.2rem;
+    font-size: 0.85rem;
+  }
+
+  .guessBtn {
+    padding: 0.45rem 0.8rem;
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1.1rem;
+    font-size: 1rem;
+  }
+
+  .ghost {
+    padding: 0.22rem 0.65rem;
+    font-size: 0.74rem;
+  }
+
+  .controls {
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+  }
+}
+
+/* extremely short windows: the portrait sits beside the name instead of above it */
+@media (min-width: 861px) and (max-height: 500px) {
+  .stick {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    align-content: start;
+    gap: 0 0.6rem;
+    text-align: left;
+  }
+
+  .portrait {
+    width: min(112px, 46cqw);
+    min-height: 0;   /* width decides, so it stays a circle */
+    max-height: none;
+    margin: 0.2rem 0;
+  }
+
+  /* picking has fewer buttons, so the portrait can be bigger */
+  body[data-mode="pick"] .portrait {
+    width: min(150px, 56cqw);
+  }
+
+  .who {
+    min-width: 0;
+  }
+
+  .stick > .controls {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1131,6 +1184,7 @@ body[data-mode="pick"] .grid .card[aria-pressed="true"] {
 
 .guessBtn {
   width: 100%;
+  margin-bottom: 0.3rem;   /* room for its thick shadow, so the row below isn't glued to it */
   padding: 1rem 1.2rem;
   font-size: clamp(1.25rem, 1.8vw, 1.6rem);
   letter-spacing: 0.02em;
@@ -1408,13 +1462,13 @@ body[data-guessing="true"] .card[aria-pressed="true"] {
   align-items: center;
   gap: 0.5rem;
   margin: -3.3rem 0 0.7rem auto;   /* tucked into the space to the right of the logo */
-  max-width: min(600px, calc(100% - clamp(260px, 38vw, 560px) + 0.5rem));   /* never under the logo */
+  max-width: min(600px, calc(100% - var(--logo-w) + 0.5rem));   /* never under the logo */
   width: 100%;
 }
 
 .find {
   flex: 1;
-  min-width: 0;
+  min-width: 8.5rem;   /* always wide enough to read "Find a cookie…" */
   padding: 0.55rem 1rem 0.55rem 2.3rem;
   font: 700 0.95rem var(--body);
   color: var(--wood-dark);

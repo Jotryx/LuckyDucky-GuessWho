@@ -257,7 +257,7 @@ window.BACKGROUNDS = [
  },
  {
   "name": "Entering Beast-Yeast",
-  "group": "Beast-Yeast",
+  "group": "Faerie Kingdom",
   "src": "backgrounds/Entering_Beast-Yeast.png"
  },
  {
@@ -271,11 +271,6 @@ window.BACKGROUNDS = [
   "src": "backgrounds/Cutscene_beast_episode01_06.webp"
  },
  {
-  "name": "Cutscene beast episode01 07",
-  "group": "Faerie Kingdom",
-  "src": "backgrounds/Cutscene_beast_episode01_07.webp"
- },
- {
   "name": "Cutscene beast episode01 019",
   "group": "Faerie Kingdom",
   "src": "backgrounds/Cutscene_beast_episode01_019.webp"
@@ -284,16 +279,6 @@ window.BACKGROUNDS = [
   "name": "Cutscene beast episode01 022",
   "group": "Faerie Kingdom",
   "src": "backgrounds/Cutscene_beast_episode01_022.webp"
- },
- {
-  "name": "Cutscene beast episode01 023",
-  "group": "Faerie Kingdom",
-  "src": "backgrounds/Cutscene_beast_episode01_023.webp"
- },
- {
-  "name": "Cutscene beast episode01 024",
-  "group": "Faerie Kingdom",
-  "src": "backgrounds/Cutscene_beast_episode01_024.webp"
  },
  {
   "name": "Cutscene beast episode01 025",
