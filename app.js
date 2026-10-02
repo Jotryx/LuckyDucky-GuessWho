@@ -2,7 +2,7 @@
   const KEY = "crk-guess-who-v1";
   const $ = (id) => document.getElementById(id);
   let cookies = (window.COOKIES || []).slice();
-  let state = { secret: null, off: [] };
+  let state = { secret: null, off: [], pending: null, bg: null };
   try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
   const show = (id) => ["empty", "pick", "board"].forEach((s) => ($(s).hidden = s !== id));
@@ -22,20 +22,20 @@
   function start() {
     if (!cookies.length) return show("empty");
     const names = new Set(cookies.map((c) => c.name));
-    if (!names.has(state.secret)) state = { secret: null, off: [] };
+    if (!names.has(state.secret)) Object.assign(state, { secret: null, off: [] });
+    if (!names.has(state.pending)) state.pending = null;
     state.secret ? renderBoard() : renderPick();
   }
 
   function renderPick() {
     show("pick");
-    let chosen = null;
     const grid = $("pickGrid"); grid.replaceChildren();
-    cookies.forEach((c, i) => grid.append(card(c, i, false, (b) => {
+    cookies.forEach((c, i) => grid.append(card(c, i, c.name === state.pending, (b) => {
       grid.querySelectorAll(".card").forEach((x) => x.setAttribute("aria-pressed", "false"));
-      b.setAttribute("aria-pressed", "true"); chosen = c.name; $("lock").disabled = false;
+      b.setAttribute("aria-pressed", "true"); state.pending = c.name; save(); $("lock").disabled = false;
     })));
-    $("lock").disabled = true;
-    $("lock").onclick = () => { state = { secret: chosen, off: [] }; save(); renderBoard(); };
+    $("lock").disabled = !state.pending;
+    $("lock").onclick = () => { Object.assign(state, { secret: state.pending, off: [], pending: null }); save(); renderBoard(); };
   }
 
   function renderBoard() {
@@ -52,7 +52,7 @@
     })));
     count();
     $("reset").onclick = () => { off.clear(); state.off = []; save(); renderBoard(); };
-    $("again").onclick = () => { state = { secret: null, off: [] }; save(); renderPick(); };
+    $("again").onclick = () => { Object.assign(state, { secret: null, off: [], pending: null }); save(); renderPick(); };
     $("peek").onclick = (e) => {
       const hide = $("peek").getAttribute("aria-pressed") !== "true";
       e.target.setAttribute("aria-pressed", hide);
@@ -68,8 +68,44 @@
         name: f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").replace(/\b\w/g, (m) => m.toUpperCase()),
         src: URL.createObjectURL(f),
       }));
-    state = { secret: null, off: [] }; start();
+    Object.assign(state, { secret: null, off: [], pending: null }); start();
   });
+
+  // Backgrounds
+  const backgrounds = window.BACKGROUNDS || [];
+  function applyBg() {
+    const bg = backgrounds.find((b) => b.src === state.bg);
+    if (!bg) state.bg = null;
+    $("scene").style.backgroundImage = bg ? `url("${bg.src}")` : "";
+    document.body.classList.toggle("has-bg", !!bg);
+    $("bgList").querySelectorAll(".bgOpt").forEach((o) => o.setAttribute("aria-pressed", o.dataset.src === (state.bg || "")));
+  }
+  function bgOption(label, src, thumb) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "bgOpt"; b.dataset.src = src; b.title = label;
+    b.innerHTML = `<span class="thumb"></span><span class="lbl"></span>`;
+    if (thumb) { const img = new Image(); img.loading = "lazy"; img.alt = ""; img.src = thumb; b.firstChild.append(img); }
+    b.querySelector(".lbl").textContent = label;
+    b.addEventListener("click", () => { state.bg = src || null; save(); applyBg(); });
+    return b;
+  }
+  function buildBgList() {
+    const list = $("bgList");
+    const groups = new Map([["", [bgOption("Default", "", null)]]]);
+    backgrounds.forEach((bg) => {
+      if (!groups.has(bg.group)) groups.set(bg.group, []);
+      groups.get(bg.group).push(bgOption(bg.name, bg.src, bg.src));
+    });
+    groups.forEach((items, name) => {
+      if (name) { const h = document.createElement("h3"); h.textContent = name; list.append(h); }
+      const g = document.createElement("div"); g.className = "bgGrid"; g.append(...items); list.append(g);
+    });
+  }
+  buildBgList();
+  document.querySelectorAll(".bgBtn").forEach((b) => (b.onclick = () => $("bgDialog").showModal()));
+  $("bgClose").onclick = () => $("bgDialog").close();
+  $("bgDialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+  applyBg();
 
   start();
 })();

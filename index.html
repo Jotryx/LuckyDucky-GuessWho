@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="scene" aria-hidden="true"></div>
 <main>
   <section id="empty" hidden>
     <h1 class="logo">Who's my cookie?</h1>
@@ -19,7 +20,7 @@
 
   <section id="pick" hidden>
     <h1 class="logo">Who's my cookie?</h1>
-    <p class="lede">Pick the cookie your opponent has to guess. Keep it secret.</p>
+    <div class="row"><p class="lede">Pick the cookie your opponent has to guess. Keep it secret.</p><button class="ghost bgBtn" type="button">Background</button></div>
     <div id="pickGrid" class="grid" role="list"></div>
     <div class="dock"><button id="lock" class="btn" disabled>Lock in my cookie</button></div>
   </section>
@@ -33,6 +34,7 @@
       </div>
       <p id="count" class="count" aria-live="polite"></p>
       <div class="actions">
+        <button class="ghost bgBtn" type="button">Background</button>
         <button id="reset" class="ghost">Flip all back up</button>
         <button id="again" class="ghost">New cookie</button>
       </div>
@@ -40,7 +42,16 @@
     <div id="boardGrid" class="grid" role="list"></div>
   </section>
 </main>
+
+<dialog id="bgDialog" aria-labelledby="bgTitle">
+  <header class="dlgHead">
+    <h2 id="bgTitle">Pick a background</h2>
+    <button id="bgClose" class="ghost" type="button">Done</button>
+  </header>
+  <div id="bgList"></div>
+</dialog>
 <script src="cookies.js"></script>
+<script src="backgrounds.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
