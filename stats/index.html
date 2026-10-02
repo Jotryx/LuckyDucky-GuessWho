@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cookie Stats · Cookie Run Guess Who</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Figtree:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="stats.css">
+</head>
+<body class="statsBody">
+<div class="statsScene" aria-hidden="true"></div>
+<main class="statsPage">
+  <header class="statsHead">
+    <a class="statsLogo" href="../index.html" title="Back to the game">
+      <img src="../images/logo.png" alt="Cookie Run Guess Who" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'Guess Who'}))">
+    </a>
+    <h1 class="statsTitle">Cookie Stats</h1>
+    <a class="ghost backLink" href="../index.html">← Back to the game</a>
+  </header>
+
+  <section class="statsSheet">
+    <p id="statsMsg" class="statsMsg">Counting cookies…</p>
+
+    <div id="statsBody" hidden>
+      <div id="tiles" class="tiles"></div>
+
+      <h2 class="sectionTitle">Fun facts</h2>
+      <div id="facts" class="facts"></div>
+
+      <h2 class="sectionTitle">Top cookies</h2>
+      <div id="lists" class="lists"></div>
+
+      <p class="privacy">These are totals only. No IP addresses, names or anything you type are stored;
+        different players are counted with an anonymous random id that's scrambled before it's saved.</p>
+      <p id="updated" class="updated"></p>
+    </div>
+  </section>
+</main>
+<script src="../stats-config.js"></script>
+<script src="../cookies.js"></script>
+<script src="../backgrounds.js"></script>
+<script src="stats-page.js"></script>
+</body>
+</html>

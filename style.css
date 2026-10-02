@@ -499,7 +499,7 @@ body[data-mode="board"] .card[aria-pressed="true"]::after {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.2) translateY(2%);
+  transform: scale(1) translateY(2%);   /* fully zoomed out; the breathing zooms in a little from here */
 }
 
 .unknown {
@@ -1101,7 +1101,7 @@ body[data-mode="board"] .hint {
 
 @keyframes breathe {
   50% {
-    transform: scale(1.25) translateY(1%);
+    transform: scale(1.06) translateY(1.5%);
   }
 }
 
@@ -1751,4 +1751,13 @@ body[data-guessing="true"] .card[aria-pressed="true"] {
     padding: 0.5rem 0.7rem;
     font-size: 0.9rem;
   }
+}
+
+/* "Stats" link in the toolbar (only shown once stats-config.js has a Worker address) */
+.statsLink {
+  flex: none;
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }

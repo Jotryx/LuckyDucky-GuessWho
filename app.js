@@ -16,6 +16,8 @@
   let state = { secret: null, off: [], pending: null, bg: null, hide: false, hideOut: false };
   try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
+  const track = (t, c, extra) => window.track?.(t, c, extra);   // anonymous stats (stats.js); no-op when off
+  if (window.STATS_URL) document.getElementById("statsLink").hidden = false;   // the Stats link only shows once stats are set up
   const label = (c) => (/^\d+$/.test(c.name) ? "#" + c.name : c.name);
   const mode = () => (state.secret ? "board" : "pick");
   let guessing = false;   // "GUESS A COOKIE!" pressed, waiting for a tap on the board
@@ -131,7 +133,14 @@
       }, 120);
     }
   }
-  $("find").addEventListener("input", () => { $("tray").scrollTop = 0; filter(true); });
+  // a search counts once, after the typing settles (the text itself is never sent)
+  let searchTimer, searchCounted = false;
+  $("find").addEventListener("input", () => {
+    $("tray").scrollTop = 0; filter(true);
+    clearTimeout(searchTimer);
+    if (!$("find").value.trim()) { searchCounted = false; return; }
+    searchTimer = setTimeout(() => { if (!searchCounted) { searchCounted = true; track("search"); } }, 1200);
+  });
 
   // Rarity filter: options come from the cookies themselves, in board order, with a count each.
   function buildRarities() {
@@ -143,7 +152,10 @@
     sel.value = counts.has(keep) ? keep : "";
     sel.hidden = counts.size < 2;
   }
-  $("rarity").addEventListener("change", () => { $("tray").scrollTop = 0; filter("redeal"); });
+  $("rarity").addEventListener("change", () => {
+    $("tray").scrollTop = 0; filter("redeal");
+    if ($("rarity").value) track("rarity", $("rarity").value);
+  });
   $("find").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); $("find").value = ""; filter(); } });
   $("hideOut").onclick = () => { state.hideOut = !state.hideOut; save(); updateCards(); };
 
@@ -190,17 +202,21 @@
     if (mode() === "pick") state.pending = c.name;
     else {
       const off = new Set(state.off);
-      off.has(c.name) ? off.delete(c.name) : off.add(c.name);
+      if (off.has(c.name)) { off.delete(c.name); track("bring_back", c.name); }
+      else { off.add(c.name); track("rule_out", c.name); }
       state.off = [...off];
     }
     save(); updateCards(); updateSide();
   }
 
-  $("lock").onclick = () => { Object.assign(state, { secret: state.pending, off: [], pending: null }); save(); render(); };
-  $("reset").onclick = () => { state.off = []; save(); updateCards(); updateSide(); };
-  $("again").onclick = () => { guessing = false; Object.assign(state, { secret: null, off: [], pending: null }); save(); render(); };
+  $("lock").onclick = () => {
+    track("start", state.pending);
+    Object.assign(state, { secret: state.pending, off: [], pending: null, started: Date.now() }); save(); render();
+  };
+  $("reset").onclick = () => { if (state.off.length) track("reset"); state.off = []; save(); updateCards(); updateSide(); };
+  $("again").onclick = () => { track("new_cookie"); guessing = false; Object.assign(state, { secret: null, off: [], pending: null }); save(); render(); };
   $("guess").onclick = () => { guessing = !guessing; updateSide(); };
-  $("peek").onclick = () => { state.hide = !state.hide; save(); updateSide(); };
+  $("peek").onclick = () => { state.hide = !state.hide; if (state.hide) track("peek"); save(); updateSide(); };
 
   // ---------- the big guess ----------
 
@@ -279,6 +295,7 @@
   $("guessNo").onclick = async () => {
     if (!guessed) return;
     const { c } = guessed, card = $("stageCard");
+    track("guess_wrong", c.name);
     $("stageAsk").hidden = true;
     $("stage").classList.add("wrong");
     FX().emote?.(card, "fx/surprised_emoji.webp", { size: 80, dx: -0.55, dy: -0.45 });
@@ -307,6 +324,7 @@
   $("guessYes").onclick = async () => {
     if (!guessed) return;
     const card = $("stageCard");
+    track("guess_right", guessed.c.name, { ms: state.started ? Date.now() - state.started : undefined, out: state.off.length });
     $("stageAsk").hidden = true;
     $("stage").classList.add("win");
     const title = $("winTitle"), text = "Congratulations, you win!";
@@ -332,6 +350,7 @@
   };
 
   $("playAgain").onclick = async () => {
+    track("play_again");
     await closeStage();
     guessing = false;
     Object.assign(state, { secret: null, off: [], pending: null }); save(); render();
@@ -393,7 +412,10 @@
     b.innerHTML = `<span class="thumb"></span>`;
     if (tiled) b.firstChild.style.background = `url("${src}") 0 0 / 80px 80px repeat`;
     else { const img = new Image(); img.loading = "lazy"; img.alt = ""; img.src = src; b.firstChild.append(img); }
-    b.addEventListener("click", () => { state.bg = src === DEFAULTS[0].src ? null : src; save(); applyBg(); });
+    b.addEventListener("click", () => {
+      if ((state.bg || DEFAULTS[0].src) !== src) track("background", name);
+      state.bg = src === DEFAULTS[0].src ? null : src; save(); applyBg();
+    });
     return b;
   }
   function buildBgList() {

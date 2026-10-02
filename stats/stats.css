@@ -1,0 +1,259 @@
+/* The stats page reuses the game's colours, fonts and buttons from ../style.css;
+   this file only adds its own layout. */
+
+html,
+body.statsBody {
+  height: auto;
+  overflow: auto;   /* unlike the game, this page scrolls */
+}
+
+body.statsBody {
+  display: block;
+  min-height: 100vh;
+  background: rgb(54, 49, 148);
+}
+
+.statsScene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(160deg, transparent 35%, rgba(12, 8, 45, 0.22)),
+    url("../backgrounds/default-blue.svg") 0 0 / 340px 340px repeat;
+}
+
+.statsPage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem clamp(16px, 3vw, 2rem) 3rem;
+}
+
+/* header: logo, title and the way back */
+.statsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.2rem;
+  margin-bottom: -1.2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.statsLogo img {
+  display: block;
+  width: clamp(180px, 26vw, 300px);
+  filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.2));
+}
+
+.statsLogo span {
+  font: 400 2rem var(--display);
+  color: var(--butter);
+}
+
+.statsTitle {
+  margin: 0;
+  font: 400 clamp(2rem, 5vw, 3.4rem) / 1.1 var(--display);
+  color: #fff;
+  -webkit-text-stroke: 0.2em var(--wood);
+  paint-order: stroke fill;
+  letter-spacing: 0.04em;
+}
+
+.backLink {
+  margin-left: auto;
+  text-decoration: none;
+}
+
+/* the tan sheet, like the game's folder */
+.statsSheet {
+  background: var(--tan);
+  border: 5px solid var(--tan-edge);
+  border-radius: 26px;
+  padding: clamp(1.6rem, 3vw, 2.4rem) clamp(14px, 2.4vw, 2.2rem);
+  box-shadow: 0 7px 0 rgba(20, 10, 60, 0.45), 0 24px 20px -14px rgba(0, 0, 0, 0.35);
+}
+
+.statsMsg {
+  margin: 2rem 0;
+  text-align: center;
+  font: 400 1.3rem var(--display);
+  color: var(--wood-dark);
+}
+
+.sectionTitle {
+  margin: 2rem 0 0.8rem;
+  font: 400 1.6rem var(--display);
+  color: #fff;
+  -webkit-text-stroke: 0.2em var(--wood);
+  paint-order: stroke fill;
+  letter-spacing: 0.04em;
+}
+
+/* big counters */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.8rem;
+}
+
+.tile {
+  position: relative;
+  padding: 1rem 1rem 0.9rem;
+  border-radius: 18px;
+  border: 4px solid var(--tray-edge);
+  background: linear-gradient(rgba(14, 8, 40, 0.35), rgba(14, 8, 40, 0.35)), url("../backgrounds/default-blue.svg") 0 0 / 200px 200px;
+  color: #fff3e4;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+  /* pops in by size only: it never starts invisible, so a stalled animation can't hide it */
+  animation: tileIn 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+  animation-delay: calc(var(--i) * 50ms);
+}
+
+@keyframes tileIn {
+  from {
+    transform: translateY(12px) scale(0.85);
+  }
+}
+
+.tile .num {
+  display: block;
+  font: 400 clamp(1.9rem, 3.6vw, 2.6rem) / 1 var(--display);
+  color: var(--butter);
+  -webkit-text-stroke: 0.14em #5a2a00;
+  paint-order: stroke fill;
+  letter-spacing: 0.03em;
+}
+
+.tile .what {
+  display: block;
+  margin-top: 0.35rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.tile.pink .num { color: #ff9cc2; -webkit-text-stroke-color: #7a0f2c; }
+.tile.mint .num { color: var(--mint); -webkit-text-stroke-color: #12424a; }
+
+/* fun facts */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.6rem;
+}
+
+.fact {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 3px solid var(--tan-edge);
+  background: var(--tan-lite);
+  color: var(--wood-dark);
+}
+
+.fact .num {
+  flex: none;
+  min-width: 3.2rem;
+  font: 400 1.5rem/1 var(--display);
+  color: #2a8a86;
+}
+
+.fact .what {
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+
+/* top lists with cookie portraits */
+.lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.9rem;
+}
+
+.list {
+  padding: 0.9rem;
+  border-radius: 18px;
+  border: 3px solid var(--tan-edge);
+  background: var(--tan-lite);
+}
+
+.list h3 {
+  margin: 0 0 0.6rem;
+  font: 400 1.15rem var(--display);
+  color: var(--wood-dark);
+}
+
+.list ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.list li {
+  display: grid;
+  grid-template-columns: 1.4rem 44px 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 700;
+  color: var(--wood-dark);
+}
+
+.list .rank {
+  font: 400 1rem var(--display);
+  color: var(--tan-edge);
+  text-align: right;
+}
+
+.list li:first-child .rank { color: #d39a00; }
+
+.list .pic {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--tray);
+  border: 2px solid #2c1d33;
+}
+
+.list .pic.wide { aspect-ratio: 16/9; height: auto; width: 44px; }
+.list .pic.blank { display: block; }
+
+.list .name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list .count {
+  font: 400 1rem var(--display);
+  color: #2a8a86;
+}
+
+.list .none {
+  margin: 0.2rem 0 0;
+  font-weight: 700;
+  color: rgba(94, 53, 25, 0.6);
+}
+
+.privacy,
+.updated {
+  margin: 2rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(94, 53, 25, 0.75);
+  text-align: center;
+}
+
+.updated {
+  margin-top: 0.3rem;
+}
+
+@media (max-width: 560px) {
+  .statsHead { justify-content: center; text-align: center; margin-bottom: 0.8rem; }
+  .backLink { margin: 0 auto; }
+}

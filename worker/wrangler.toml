@@ -1,0 +1,10 @@
+# Cloudflare Worker that collects anonymous game stats for Cookie Run Guess Who.
+# Setup steps are in worker/README.md.
+name = "guesswho-stats"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "guesswho-stats"
+database_id = "bf2cb9e6-7fbc-458c-a66e-bc872128411a"   # from: npx wrangler d1 create guesswho-stats
