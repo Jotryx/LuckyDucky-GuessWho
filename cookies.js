@@ -316,11 +316,6 @@ window.COOKIES = [
     "src": "images/04-epic/financier-cookie.webp"
   },
   {
-    "name": "Fresh Apple Faerie",
-    "rarity": "Epic",
-    "src": "images/04-epic/fresh-apple-faerie.webp"
-  },
-  {
     "name": "Frilled Jellyfish Cookie",
     "rarity": "Epic",
     "src": "images/04-epic/frilled-jellyfish-cookie.webp"
@@ -831,11 +826,6 @@ window.COOKIES = [
     "src": "images/07-legendary/sugar-swan-cookie.webp"
   },
   {
-    "name": "Sugar Swan Cookie (Swan Form)",
-    "rarity": "Legendary",
-    "src": "images/07-legendary/sugar-swan-form-cookie.webp"
-  },
-  {
     "name": "Timekeeper Cookie",
     "rarity": "Legendary",
     "src": "images/07-legendary/timekeeper-cookie.webp"
@@ -844,31 +834,6 @@ window.COOKIES = [
     "name": "Wind Archer Cookie",
     "rarity": "Legendary",
     "src": "images/07-legendary/wind-archer-cookie.webp"
-  },
-  {
-    "name": "Awakened Dark Cacao Cookie",
-    "rarity": "Ancient",
-    "src": "images/08-ancient/awakened-dark-cacao-cookie.webp"
-  },
-  {
-    "name": "Awakened Golden Cheese Cookie",
-    "rarity": "Ancient",
-    "src": "images/08-ancient/awakened-golden-cheese-cookie.webp"
-  },
-  {
-    "name": "Awakened Hollyberry Cookie",
-    "rarity": "Ancient",
-    "src": "images/08-ancient/awakened-hollyberry-cookie.webp"
-  },
-  {
-    "name": "Awakened Pure Vanilla Cookie",
-    "rarity": "Ancient",
-    "src": "images/08-ancient/awakened-pure-vanilla-cookie.webp"
-  },
-  {
-    "name": "Awakened White Lily Cookie",
-    "rarity": "Ancient",
-    "src": "images/08-ancient/awakened-white-lily-cookie.webp"
   },
   {
     "name": "Dark Cacao Cookie",
