@@ -15,7 +15,7 @@ def natural(p):  # 1, 2, 10 instead of 1, 10, 2
 
 cookies = []
 for f in sorted((root / "images").iterdir(), key=natural):
-    if f.suffix.lower() in EXT:
+    if f.suffix.lower() in EXT and f.stem.lower() != "logo":
         name = names.get(f.stem) or re.sub(r"[-_]+", " ", f.stem).strip().title()
         cookies.append({"name": name, "src": f"images/{f.name}"})
 
