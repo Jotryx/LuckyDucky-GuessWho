@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS counters (
 CREATE TABLE IF NOT EXISTS players (
   h TEXT PRIMARY KEY,
   first_day TEXT NOT NULL,
-  last_day TEXT NOT NULL
+  last_day TEXT NOT NULL,
+  last_visit INTEGER NOT NULL DEFAULT 0   -- ms; a visit counts at most every 30 minutes
 );
 
 -- which (hashed) players were around on which day; rows older than 35 days are deleted
