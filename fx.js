@@ -252,9 +252,12 @@
 
   const title = document.querySelector(".choiceTitle");
   if (title) {
-    title.innerHTML = [...title.textContent]
-      .map((ch, i) => `<span style="--n:${i}">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
-    title.setAttribute("aria-label", title.textContent.replace(/ /g, " "));
+    const text = title.textContent.trim();
+    title.innerHTML = [...text].length && text.split(" ").map((word, w, words) => {
+      const start = words.slice(0, w).join(" ").length + (w ? 1 : 0);
+      return `<span class="word">${[...word].map((ch, i) => `<span style="--n:${start + i}">${ch}</span>`).join("")}</span>`;
+    }).join(" ");
+    title.setAttribute("aria-label", text);
   }
   function wave() {
     if (!title) return;

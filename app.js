@@ -311,7 +311,10 @@
     $("stage").classList.add("win");
     const title = $("winTitle"), text = "Congratulations, you win!";
     title.setAttribute("aria-label", text);
-    title.innerHTML = [...text].map((ch, i) => `<span style="--n:${i}">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
+    title.innerHTML = [...text].length && text.split(" ").map((word, w, words) => {
+      const start = words.slice(0, w).join(" ").length + (w ? 1 : 0);
+      return `<span class="word">${[...word].map((ch, i) => `<span style="--n:${start + i}">${ch}</span>`).join("")}</span>`;
+    }).join(" ");
     title.classList.remove("done");
     setTimeout(() => title.classList.add("done"), 1800);
     $("stageWin").hidden = false;
