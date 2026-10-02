@@ -23,18 +23,30 @@
     </h1>
     <a class="yt" href="https://www.youtube.com/@LuckyDucky_CRK" target="_blank" rel="noopener"
       title="LuckyDucky on YouTube"><svg viewBox="0 0 28 20" aria-hidden="true"><rect width="28" height="20" rx="6" fill="#ff1f3d"/><path d="M11 5.5v9l8-4.5z" fill="#fff"/></svg><span>@LuckyDucky_CRK</span></a>
-    <div class="tray">
-      <div id="empty" class="emptyMsg" hidden>
-        <p>The oven is empty. Add your cookie images to the <b>images</b> folder and run <b>make_cookies.py</b>, or load them straight from your computer.</p>
-        <label class="btn">Choose images<input id="files" type="file" accept="image/*" multiple hidden></label>
+    <div class="toolbar">
+      <input id="find" class="find" type="search" placeholder="Find a cookie…" aria-label="Find a cookie" autocomplete="off">
+      <select id="rarity" class="rarity" aria-label="Filter by rarity" hidden>
+        <option value="">All rarities</option>
+      </select>
+      <button id="hideOut" class="ghost" type="button" aria-pressed="false" hidden>Hide ruled out</button>
+    </div>
+    <div class="trayWrap">
+      <div id="tray" class="tray">
+        <div id="empty" class="emptyMsg" hidden>
+          <p>The oven is empty. Add your cookie images to the <b>images</b> folder and run <b>make_cookies.py</b>, or load them straight from your computer.</p>
+          <label class="btn">Choose images<input id="files" type="file" accept="image/*" multiple hidden></label>
+        </div>
+        <p id="noMatch" class="emptyMsg" hidden>No cookie matches that name.</p>
+        <div id="grid" class="grid" role="list"></div>
       </div>
-      <div id="grid" class="grid" role="list"></div>
+      <button id="moreUp" class="moreHint up" type="button" aria-label="Scroll to the top" hidden>▲</button>
+      <button id="moreDown" class="moreHint down" type="button" aria-label="Scroll down for more cookies" hidden>▼ more</button>
     </div>
   </section>
 
   <aside class="choice">
+   <h2 class="choiceTitle">Cookie Choice</h2>
    <div class="stick">
-    <h2 class="choiceTitle">Cookie Choice</h2>
     <div id="portrait" class="portrait">
       <img id="choiceImg" alt="" hidden>
       <span id="choiceEmpty" class="unknown" aria-hidden="true">?</span>
@@ -48,6 +60,7 @@
       <button id="lock" class="btn" type="button" disabled>Lock in my cookie</button>
     </div>
     <div id="boardCtl" class="controls" hidden>
+      <button id="guess" class="btn guessBtn" type="button" aria-pressed="false">GUESS A COOKIE!</button>
       <button id="peek" class="ghost" type="button" aria-pressed="false">Hide my cookie</button>
       <button id="reset" class="ghost" type="button">Flip all back up</button>
       <button id="again" class="ghost" type="button">New cookie</button>
@@ -66,8 +79,35 @@
   </header>
   <div id="bgList"></div>
 </dialog>
+<div id="stage" class="stage" role="dialog" aria-modal="true" aria-labelledby="stageTitle" hidden>
+  <div class="stageRays" aria-hidden="true"></div>
+  <div class="stageInner">
+    <div id="stageCard" class="stageCard">
+      <img id="stageImg" alt="">
+      <p id="stageName" class="stageName"></p>
+    </div>
+
+    <div id="stageAsk" class="stagePanel" hidden>
+      <h2 id="stageTitle" class="stageTitle">Was this guess right?</h2>
+      <div class="stageButtons">
+        <button id="guessYes" class="btn" type="button">Yes, that's it!</button>
+        <button id="guessNo" class="btn nope" type="button">Nope</button>
+      </div>
+    </div>
+
+    <div id="stageWin" class="stagePanel" hidden>
+      <h2 id="winTitle" class="winTitle">Congratulations, you win!</h2>
+      <div class="stageButtons">
+        <button id="playAgain" class="btn" type="button">Play again</button>
+        <button id="winBack" class="ghost" type="button">Back to board</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="cookies.js"></script>
 <script src="backgrounds.js"></script>
 <script src="app.js"></script>
+<script src="fx.js"></script>
 </body>
 </html>
