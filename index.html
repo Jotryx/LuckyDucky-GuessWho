@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who's My Cookie? · Cookie Run Kingdom Guess Who</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Figtree:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <section id="empty" hidden>
+    <h1 class="logo">Who's my cookie?</h1>
+    <p class="lede">The oven is empty. Add your cookie images to the <b>images</b> folder and run <b>make_cookies.py</b>, or load them straight from your computer.</p>
+    <label class="btn">Choose images<input id="files" type="file" accept="image/*" multiple hidden></label>
+  </section>
+
+  <section id="pick" hidden>
+    <h1 class="logo">Who's my cookie?</h1>
+    <p class="lede">Pick the cookie your opponent has to guess. Keep it secret.</p>
+    <div id="pickGrid" class="grid" role="list"></div>
+    <div class="dock"><button id="lock" class="btn" disabled>Lock in my cookie</button></div>
+  </section>
+
+  <section id="board" hidden>
+    <header class="bar">
+      <h1 class="logo small">Who's my cookie?</h1>
+      <div class="mine" title="Your secret cookie">
+        <img id="mineImg" alt=""><span id="mineName"></span>
+        <button id="peek" class="ghost" aria-pressed="false">Hide</button>
+      </div>
+      <p id="count" class="count" aria-live="polite"></p>
+      <div class="actions">
+        <button id="reset" class="ghost">Flip all back up</button>
+        <button id="again" class="ghost">New cookie</button>
+      </div>
+    </header>
+    <div id="boardGrid" class="grid" role="list"></div>
+  </section>
+</main>
+<script src="cookies.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
