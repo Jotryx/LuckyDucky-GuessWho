@@ -66,16 +66,6 @@ window.BACKGROUNDS = [
   "src": "backgrounds/Odyssey_solarium_of_unity.webp"
  },
  {
-  "name": "Odyssey Red Fountain Piazza",
-  "group": "Cookie Odyssey",
-  "src": "backgrounds/Odyssey_Red_Fountain_Piazza.webp"
- },
- {
-  "name": "Odyssey hollyberry cookie27s chamber",
-  "group": "Cookie Odyssey",
-  "src": "backgrounds/Odyssey_hollyberry_cookie27s_chamber.webp"
- },
- {
   "name": "Odyssey dark cacao cookie27s tent ",
   "group": "Cookie Odyssey",
   "src": "backgrounds/Odyssey_dark_cacao_cookie27s_tent_.webp"
@@ -106,11 +96,6 @@ window.BACKGROUNDS = [
   "src": "backgrounds/Odyssey_garden.webp"
  },
  {
-  "name": "Odyssey Fountain Piazza",
-  "group": "Cookie Odyssey",
-  "src": "backgrounds/Odyssey_Fountain_Piazza.webp"
- },
- {
   "name": "Odyssey council hall",
   "group": "Cookie Odyssey",
   "src": "backgrounds/Odyssey_council_hall.webp"
@@ -129,21 +114,6 @@ window.BACKGROUNDS = [
   "name": "Odyssey back alley night",
   "group": "Cookie Odyssey",
   "src": "backgrounds/Odyssey_back_alley_night.webp"
- },
- {
-  "name": "Odyssey airship port nighttime palette",
-  "group": "Cookie Odyssey",
-  "src": "backgrounds/Odyssey_airship_port_nighttime_palette.png"
- },
- {
-  "name": "Odyssey airship port",
-  "group": "Cookie Odyssey",
-  "src": "backgrounds/Odyssey_airship_port.webp"
- },
- {
-  "name": "Odyssey white lily greenhouse",
-  "group": "Cookie Odyssey",
-  "src": "backgrounds/Odyssey_white_lily_greenhouse.webp"
  },
  {
   "name": "Odyssey mansion madeleine",
@@ -234,11 +204,6 @@ window.BACKGROUNDS = [
   "name": "Cutscene special episode03 08",
   "group": "A Mermaid's Tale/Tearcrown",
   "src": "backgrounds/Cutscene_special_episode03_08.webp"
- },
- {
-  "name": "Cutscene special episode03 011",
-  "group": "A Mermaid's Tale/Tearcrown",
-  "src": "backgrounds/Cutscene_special_episode03_011.webp"
  },
  {
   "name": "Mermaid gacha background",
