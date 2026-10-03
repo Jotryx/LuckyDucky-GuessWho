@@ -2039,6 +2039,54 @@ body[data-guessing="true"] .card[aria-pressed="true"] {
   background: var(--tan-edge);
   color: #fff;
   font: 400 0.95rem var(--display);
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.12s, filter 0.12s;
+}
+
+.turnMore:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.turnMore:focus-visible {
+  outline: 4px solid var(--mint);
+  outline-offset: 2px;
+}
+
+/* "View all": every cookie of one list, bigger and with names */
+.allPicsDialog {
+  width: min(720px, calc(100vw - 32px));
+}
+
+.allPicsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.6rem;
+}
+
+.allPicsGrid figure {
+  margin: 0;
+  display: grid;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.allPicsGrid img {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 3px solid #2c1d33;
+  object-fit: cover;
+  background: var(--tray);
+}
+
+.allPicsGrid figcaption {
+  font-weight: 800;
+  font-size: 0.8rem;
+  line-height: 1.15;
+  color: #6b4426;
+  overflow-wrap: anywhere;
 }
 
 .turnLog {

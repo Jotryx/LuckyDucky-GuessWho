@@ -579,7 +579,7 @@
 
   // ---------- question log: End turn, earlier questions, bring back ----------
   const picOf = (name) => allCookies.find((c) => c.name === name)?.src;
-  function pics(names, max = 12) {
+  function pics(names, max = 12, title = "Cookies") {
     const wrap = document.createDocumentFragment();
     names.slice(0, max).forEach((n) => {
       const src = picOf(n);
@@ -588,18 +588,39 @@
       wrap.append(img);
     });
     if (names.length > max) {
-      const more = document.createElement("span"); more.className = "turnMore"; more.textContent = `+${names.length - max}`;
+      const more = document.createElement("button");
+      more.type = "button"; more.className = "turnMore";
+      more.textContent = `+${names.length - max} · View all`;
+      more.setAttribute("aria-label", `View all ${names.length} cookies`);
+      more.onclick = () => showAllPics(names, title);
       wrap.append(more);
     }
     return wrap;
   }
+
+  // The "+7 · View all" pill opens every cookie of that list, bigger and with names.
+  function showAllPics(names, title) {
+    $("allPicsTitle").textContent = title;
+    $("allPicsText").textContent = `${names.length} cookie${names.length > 1 ? "s" : ""}`;
+    $("allPicsGrid").replaceChildren(...names.filter(picOf).map((n) => {
+      const fig = document.createElement("figure");
+      const img = new Image(); img.src = picOf(n); img.alt = ""; img.loading = "lazy";
+      const cap = document.createElement("figcaption"); cap.textContent = n;
+      fig.append(img, cap);
+      return fig;
+    }));
+    $("allPicsDialog").showModal();
+    $("allPicsGrid").parentElement.scrollTop = 0;
+  }
+  $("allPicsClose").onclick = () => $("allPicsDialog").close();
+  $("allPicsDialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
 
   function renderTurns() {
     const now = state.turn.filter((n) => state.off.includes(n));
     $("turnNowText").textContent = now.length
       ? `You ruled out ${now.length} cookie${now.length > 1 ? "s" : ""} this turn.`
       : "You haven't ruled out any cookies since your last question.";
-    $("turnNowPics").replaceChildren(pics(now));
+    $("turnNowPics").replaceChildren(pics(now, 12, "Ruled out this turn"));
     $("turnForm").hidden = !now.length;
 
     const log = $("turnLog");
@@ -612,7 +633,7 @@
         `<div class="turnActions"><button class="ghost bringBack" type="button"></button><button class="ghost removeQ" type="button">Remove</button></div>`;
       li.querySelector(".turnNum").textContent = `Q${state.turns.length - i}`;
       li.querySelector(".turnQText").textContent = t.q || "(no question written)";
-      li.querySelector(".turnPics").append(pics(t.out, 10));
+      li.querySelector(".turnPics").append(pics(t.out, 10, `Q${state.turns.length - i}: ruled out`));
       const still = t.out.filter((n) => state.off.includes(n));
       const btn = li.querySelector(".bringBack");
       btn.textContent = still.length ? `Bring back ${still.length}` : "All back on the board";
