@@ -108,6 +108,9 @@
       [nf.format(t.background || 0), "background changes"],
       [nf.format(t.play_again || 0), "“play again!” after a win"],
       [nf.format(p.returning || 0), "players who came back another day"],
+      [nf.format(t.questions || 0), "questions asked (turns saved)"],
+      [t.wins_q ? (t.win_q_total / t.wins_q).toFixed(1) : "–", "questions per win, on average"],
+      [nf.format(t.question_back || 0), "times a whole question was undone"],
     ].forEach(([v, what]) => facts.append(fact(v, what)));
 
     const lists = $("lists");

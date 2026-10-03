@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Figtree:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261003-0022">
+<link rel="stylesheet" href="style.css?v=20261003-0204">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
@@ -55,14 +55,17 @@
     <div class="who">
       <p id="choiceName" class="choiceName"></p>
       <p id="hint" class="hint" aria-live="polite"></p>
+      <button id="boardTag" class="boardTag" type="button" hidden></button>
     </div>
 
     <div id="pickCtl" class="controls" hidden>
       <button id="lock" class="btn" type="button" disabled>Lock in my cookie</button>
+      <button id="boardBtn" class="ghost boardBtn" type="button">Board</button>
       <button class="ghost bgBtn" type="button">Background</button>
     </div>
     <div id="boardCtl" class="controls" hidden>
       <button id="guess" class="btn guessBtn" type="button" aria-pressed="false">GUESS A COOKIE!</button>
+      <button id="endTurn" class="ghost endTurn" type="button">End turn</button>
       <button id="peek" class="ghost" type="button" aria-pressed="false">Hide my cookie</button>
       <button id="reset" class="ghost" type="button">Flip all back up</button>
       <button id="again" class="ghost" type="button">New cookie</button>
@@ -78,6 +81,77 @@
     <button id="bgClose" class="ghost" type="button">Done</button>
   </header>
   <div id="bgList"></div>
+</dialog>
+<dialog id="boardDialog" class="boardDialog" aria-labelledby="boardTitle">
+  <header class="dlgHead">
+    <h2 id="boardTitle">Board</h2>
+    <button id="boardClose" class="ghost" type="button">Done</button>
+  </header>
+  <div class="boardBody">
+    <p class="boardIntro">Play on the same random board as your friend: one of you makes a board, the other joins with its code.</p>
+
+    <section class="boardNow">
+      <span class="boardLabel">Current board</span>
+      <strong id="boardCode" class="boardCode">All cookies</strong>
+      <span id="boardCount" class="boardCount"></span>
+      <div class="boardCopy">
+        <button id="copyCode" class="ghost" type="button">Copy code</button>
+        <button id="copyLink" class="ghost" type="button">Copy link</button>
+      </div>
+    </section>
+
+    <section>
+      <h3>Make a new board</h3>
+      <div class="sizes" role="radiogroup" aria-label="Board size">
+        <label><input type="radio" name="boardSize" value="25"><span>25</span></label>
+        <label><input type="radio" name="boardSize" value="50" checked><span>50</span></label>
+        <label><input type="radio" name="boardSize" value="75"><span>75</span></label>
+        <label><input type="radio" name="boardSize" value="ALL"><span id="sizeAll">All</span></label>
+        <label><input type="radio" name="boardSize" value="CUSTOM"><span>Custom</span></label>
+      </div>
+      <label id="customRow" class="customRow" hidden>
+        <span>How many cookies?</span>
+        <input id="customSize" class="customSize" type="number" min="2" step="1" value="30" inputmode="numeric">
+      </label>
+      <button id="makeBoard" class="btn" type="button">Make a new board</button>
+    </section>
+
+    <section>
+      <h3>Join a friend's board</h3>
+      <form id="joinForm" class="joinRow">
+        <input id="joinCode" class="find joinCode" type="text" placeholder="e.g. 7Q4M-40" aria-label="Board code" autocomplete="off" spellcheck="false">
+        <button class="btn" type="submit">Join</button>
+      </form>
+      <p id="joinMsg" class="joinMsg" aria-live="polite"></p>
+    </section>
+
+    <p id="boardWarn" class="boardWarn" hidden>Changing the board starts a new game.</p>
+    <button id="allBoard" class="ghost allBoard" type="button">Use all cookies</button>
+  </div>
+</dialog>
+<dialog id="turnDialog" class="boardDialog turnDialog" aria-labelledby="turnTitle">
+  <header class="dlgHead">
+    <h2 id="turnTitle">Questions</h2>
+    <button id="turnClose" class="ghost" type="button">Done</button>
+  </header>
+  <div class="boardBody">
+    <section id="turnNow" class="turnNow">
+      <h3>This turn</h3>
+      <p id="turnNowText" class="turnNowText"></p>
+      <div id="turnNowPics" class="turnPics"></div>
+      <form id="turnForm" class="joinRow">
+        <input id="turnQ" class="find turnQ" type="text" maxlength="120" autocomplete="off"
+          placeholder="What did you ask? e.g. Does it wear a hat? – no" aria-label="Your question">
+        <button class="btn" type="submit">Save turn</button>
+      </form>
+    </section>
+
+    <section>
+      <h3>Earlier questions</h3>
+      <ol id="turnLog" class="turnLog"></ol>
+      <p id="turnEmpty" class="turnEmpty">No questions saved yet. After each question, press <b>End turn</b> to save which cookies it ruled out.</p>
+    </section>
+  </div>
 </dialog>
 <div id="stage" class="stage" role="dialog" aria-modal="true" aria-labelledby="stageTitle" hidden>
   <div class="stageRays" aria-hidden="true"></div>
@@ -105,11 +179,11 @@
   </div>
 </div>
 
-<script src="stats-config.js?v=20261003-0022"></script>
-<script src="stats.js?v=20261003-0022"></script>
-<script src="cookies.js?v=20261003-0022"></script>
-<script src="backgrounds.js?v=20261003-0022"></script>
-<script src="app.js?v=20261003-0022"></script>
-<script src="fx.js?v=20261003-0022"></script>
+<script src="stats-config.js?v=20261003-0204"></script>
+<script src="stats.js?v=20261003-0204"></script>
+<script src="cookies.js?v=20261003-0204"></script>
+<script src="backgrounds.js?v=20261003-0204"></script>
+<script src="app.js?v=20261003-0204"></script>
+<script src="fx.js?v=20261003-0204"></script>
 </body>
 </html>

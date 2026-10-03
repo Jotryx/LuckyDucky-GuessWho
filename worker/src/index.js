@@ -40,6 +40,8 @@ const EVENTS = {
   rarity:       { key: "rarity_filter", per: "rarity", names: "rarities" },
   background:   { key: "background", per: "bg", names: "backgrounds" },
   play_again:   { key: "play_again" },
+  end_turn:     { key: "questions" },                                 // saved a question ("End turn")
+  question_back:{ key: "question_back" },                             // brought back a whole question
 };
 
 const cors = {
@@ -195,6 +197,7 @@ async function handleEvents(request, env) {
       const ms = Math.round(e.ms);
       statements.push(add.bind("win_ms_total", ms), add.bind("wins_timed", 1), least.bind("fastest_win_ms", ms));
       if (Number.isFinite(e.out) && e.out >= 0 && e.out < 2000) statements.push(add.bind("win_outs_total", Math.round(e.out)));
+      if (Number.isFinite(e.q) && e.q >= 0 && e.q < 500) statements.push(add.bind("win_q_total", Math.round(e.q)), add.bind("wins_q", 1));
     }
   }
   if (Math.random() < 0.02) {

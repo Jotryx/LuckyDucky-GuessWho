@@ -16,7 +16,60 @@
   let state = { secret: null, off: [], pending: null, bg: null, hide: false, hideOut: false };
   try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
+  // question log: cookies ruled out this turn, and earlier turns ({ q, out: [names], back })
+  if (!Array.isArray(state.turn)) state.turn = [];
+  if (!Array.isArray(state.turns)) state.turns = [];
+  const freshLog = { turn: [], turns: [] };
   const track = (t, c, extra) => window.track?.(t, c, extra);   // anonymous stats (stats.js); no-op when off
+
+  // ---------- board codes: the same random board on every device ----------
+  // A code like "7Q4M-40" is a seed plus a board size. The seed always shuffles the full cookie list
+  // the same way, so two players who enter the same code get exactly the same cookies (no server needed).
+  const CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";   // no 0/O, 1/I/L mix-ups
+  const allCookies = cookies.slice();
+
+  // any size works: "7Q4M-25", "7Q4M-37", "7Q4M-ALL"
+  function parseBoard(text) {
+    const m = /^([A-Z2-9]{4})[-\s]*(\d{1,3}|ALL)$/.exec(String(text || "").toUpperCase().replace(/\s+/g, " ").trim());
+    if (!m || ![...m[1]].every((ch) => CODE_CHARS.includes(ch))) return null;
+    if (m[2] === "ALL") return `${m[1]}-ALL`;
+    const n = parseInt(m[2], 10);
+    return n >= 2 ? `${m[1]}-${n}` : null;
+  }
+  function newBoardCode(size) {
+    const r = crypto.getRandomValues(new Uint32Array(4));
+    return [...r].map((n) => CODE_CHARS[n % CODE_CHARS.length]).join("") + "-" + size;
+  }
+  function boardCookies(list, code) {
+    if (!code) return list;
+    const [seed, size] = code.split("-");
+    if (size === "ALL") return list;
+    let h = 2166136261;                                    // FNV-1a hash of the seed
+    for (const ch of seed) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+    const rand = () => {                                   // mulberry32: small, fast, repeatable
+      h = (h + 0x6D2B79F5) | 0;
+      let t = Math.imul(h ^ (h >>> 15), 1 | h);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const idx = list.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    return idx.slice(0, Math.min(+size, list.length)).sort((a, b) => a - b).map((i) => list[i]);   // keep the usual order
+  }
+  const applyBoard = () => { cookies = boardCookies(allCookies, state.board); };
+
+  // a shared link (?board=7Q4M-40) opens straight onto that board
+  {
+    const params = new URLSearchParams(location.search), fromLink = parseBoard(params.get("board"));
+    if (fromLink && fromLink !== state.board) Object.assign(state, { board: fromLink, secret: null, off: [], pending: null });
+    if (params.has("board")) {
+      params.delete("board");
+      history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "") + location.hash);
+    }
+    if (state.board && !parseBoard(state.board)) state.board = null;
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+  }
+  applyBoard();
   if (window.STATS_URL) document.getElementById("statsLink").hidden = false;   // the Stats link only shows once stats are set up
   const label = (c) => (/^\d+$/.test(c.name) ? "#" + c.name : c.name);
   const mode = () => (state.secret ? "board" : "pick");
@@ -182,6 +235,9 @@
     $("choiceName").classList.toggle("hidden", hidden);
     $("peek").setAttribute("aria-pressed", hidden);
     $("peek").textContent = hidden ? "Show my cookie" : "Hide my cookie";
+    const now = state.turn.filter((n) => state.off.includes(n)).length;
+    $("endTurn").textContent = now ? `End turn · ${now}` : state.turns.length ? `Questions (${state.turns.length})` : "End turn";
+    $("endTurn").classList.toggle("ready", now > 0);
     $("pickCtl").hidden = !cookies.length || !pick;
     $("boardCtl").hidden = !cookies.length || pick;
     $("lock").disabled = !state.pending;
@@ -202,8 +258,8 @@
     if (mode() === "pick") state.pending = c.name;
     else {
       const off = new Set(state.off);
-      if (off.has(c.name)) { off.delete(c.name); track("bring_back", c.name); }
-      else { off.add(c.name); track("rule_out", c.name); }
+      if (off.has(c.name)) { off.delete(c.name); track("bring_back", c.name); state.turn = state.turn.filter((n) => n !== c.name); }
+      else { off.add(c.name); track("rule_out", c.name); if (!state.turn.includes(c.name)) state.turn.push(c.name); }
       state.off = [...off];
     }
     save(); updateCards(); updateSide();
@@ -211,10 +267,14 @@
 
   $("lock").onclick = () => {
     track("start", state.pending);
-    Object.assign(state, { secret: state.pending, off: [], pending: null, started: Date.now() }); save(); render();
+    Object.assign(state, { secret: state.pending, off: [], pending: null, started: Date.now() }, freshLog); save(); render();
   };
-  $("reset").onclick = () => { if (state.off.length) track("reset"); state.off = []; save(); updateCards(); updateSide(); };
-  $("again").onclick = () => { track("new_cookie"); guessing = false; Object.assign(state, { secret: null, off: [], pending: null }); save(); render(); };
+  $("reset").onclick = () => {
+    if (state.off.length) track("reset");
+    state.off = []; state.turn = []; state.turns.forEach((t) => (t.back = true));   // everything is back on the board
+    save(); updateCards(); updateSide();
+  };
+  $("again").onclick = () => { track("new_cookie"); guessing = false; Object.assign(state, { secret: null, off: [], pending: null }, freshLog); save(); render(); };
   $("guess").onclick = () => { guessing = !guessing; updateSide(); };
   $("peek").onclick = () => { state.hide = !state.hide; if (state.hide) track("peek"); save(); updateSide(); };
 
@@ -317,6 +377,7 @@
     await closeStage();
     $("stageCard").getAnimations().forEach((a) => a.cancel());
     if (!state.off.includes(c.name)) state.off = [...state.off, c.name];
+    if (!state.turn.includes(c.name)) state.turn.push(c.name);
     save(); updateCards(); updateSide();
     if (b) { FX().puff?.(b); b.animate([{ scale: "1.15" }, { scale: "1" }], { duration: 350, easing: "ease-out" }); }
   };
@@ -324,7 +385,7 @@
   $("guessYes").onclick = async () => {
     if (!guessed) return;
     const card = $("stageCard");
-    track("guess_right", guessed.c.name, { ms: state.started ? Date.now() - state.started : undefined, out: state.off.length });
+    track("guess_right", guessed.c.name, { ms: state.started ? Date.now() - state.started : undefined, out: state.off.length, q: state.turns.length });
     $("stageAsk").hidden = true;
     $("stage").classList.add("win");
     const title = $("winTitle"), text = "Congratulations, you win!";
@@ -353,7 +414,7 @@
     track("play_again");
     await closeStage();
     guessing = false;
-    Object.assign(state, { secret: null, off: [], pending: null }); save(); render();
+    Object.assign(state, { secret: null, off: [], pending: null }, freshLog); save(); render();
   };
   $("winBack").onclick = () => closeStage();
 
@@ -371,7 +432,8 @@
         name: f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").replace(/\b\w/g, (m) => m.toUpperCase()),
         src: URL.createObjectURL(f),
       }));
-    Object.assign(state, { secret: null, off: [], pending: null }); render();
+    allCookies.splice(0, allCookies.length, ...cookies);
+    Object.assign(state, { secret: null, off: [], pending: null, board: null }); applyBoard(); render(); updateBoardUi();
   });
 
   // Backgrounds
@@ -436,5 +498,177 @@
   $("bgDialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
   applyBg();
 
+  // ---------- the Board window ----------
+  const boardLink = (code) => location.origin + location.pathname + "?board=" + code;
+  function updateBoardUi() {
+    const code = state.board && !state.board.endsWith("-ALL") ? state.board : null;
+    $("boardTag").hidden = !code;   // small "Board 7Q4M-40" tag under the cookie name
+    $("boardTag").textContent = code ? `Board ${code}` : "";
+    $("boardCode").textContent = code || "All cookies";
+    $("boardCount").textContent = `${cookies.length} cookie${cookies.length === 1 ? "" : "s"}`;
+    $("copyCode").hidden = $("copyLink").hidden = !code;
+    $("allBoard").hidden = !code;
+    $("sizeAll").textContent = `All ${allCookies.length}`;
+    $("boardWarn").hidden = !(state.secret || state.off.length);
+  }
+  function setBoard(code) {
+    if ((code || null) === (state.board || null)) return;
+    guessing = false;
+    Object.assign(state, { board: code, secret: null, off: [], pending: null }, freshLog);
+    save(); applyBoard(); render(); updateBoardUi();
+    window.FX?.boing?.($("boardCode"), 0.6);
+  }
+  function copy(text, button) {
+    const done = () => { const t = button.textContent; button.textContent = "Copied!"; setTimeout(() => (button.textContent = t), 1500); };
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done, () => prompt("Copy this:", text));
+    else prompt("Copy this:", text);
+  }
+
+  const openBoard = () => {
+    // preselect the current board's size (anything other than 25/50/75/All is "Custom")
+    const size = (state.board || "").split("-")[1] || "50";
+    const preset = ["25", "50", "75", "ALL"].includes(size);
+    document.querySelector(`input[name="boardSize"][value="${preset ? size : "CUSTOM"}"]`).checked = true;
+    if (!preset) $("customSize").value = size;
+    showCustom();
+    $("joinMsg").textContent = ""; $("joinCode").value = "";
+    updateBoardUi(); $("boardDialog").showModal();
+  };
+  $("boardBtn").onclick = openBoard;
+  $("boardTag").onclick = openBoard;
+  // the number field only shows when "Custom" is picked
+  function showCustom() {
+    const custom = document.querySelector('input[name="boardSize"]:checked')?.value === "CUSTOM";
+    $("customRow").hidden = !custom;
+    $("customSize").max = allCookies.length;
+  }
+  document.querySelectorAll('input[name="boardSize"]').forEach((r) => r.addEventListener("change", () => {
+    showCustom();
+    if (!$("customRow").hidden) $("customSize").select();
+  }));
+  $("customSize").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("makeBoard").click(); } });
+  $("boardClose").onclick = () => $("boardDialog").close();
+  $("boardDialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+  $("makeBoard").onclick = () => {
+    let size = document.querySelector('input[name="boardSize"]:checked')?.value || "50";
+    if (size === "CUSTOM") {
+      const n = Math.round(Number($("customSize").value));
+      if (!Number.isFinite(n) || n < 2) {
+        $("customSize").animate([{ translate: "0" }, { translate: "-6px" }, { translate: "5px" }, { translate: "0" }], { duration: 300 });
+        $("customSize").focus();
+        return;
+      }
+      size = n >= allCookies.length ? "ALL" : String(n);
+    } else if (size !== "ALL" && +size >= allCookies.length) size = "ALL";
+    setBoard(size === "ALL" ? null : newBoardCode(size));
+  };
+  $("allBoard").onclick = () => setBoard(null);
+  $("joinForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const code = parseBoard($("joinCode").value);
+    if (!code) {
+      $("joinMsg").textContent = "That doesn't look like a board code. It should look like 7Q4M-40.";
+      $("joinCode").animate([{ translate: "0" }, { translate: "-8px" }, { translate: "7px" }, { translate: "-4px" }, { translate: "0" }], { duration: 360 });
+      return;
+    }
+    setBoard(code.endsWith("-ALL") ? null : code);
+    $("joinMsg").textContent = `Joined board ${code}!`;
+  });
+  $("copyCode").onclick = (e) => copy(state.board, e.currentTarget);
+  $("copyLink").onclick = (e) => copy(boardLink(state.board), e.currentTarget);
+
+  // ---------- question log: End turn, earlier questions, bring back ----------
+  const picOf = (name) => allCookies.find((c) => c.name === name)?.src;
+  function pics(names, max = 12) {
+    const wrap = document.createDocumentFragment();
+    names.slice(0, max).forEach((n) => {
+      const src = picOf(n);
+      if (!src) return;
+      const img = new Image(); img.src = src; img.alt = ""; img.title = n; img.loading = "lazy";
+      wrap.append(img);
+    });
+    if (names.length > max) {
+      const more = document.createElement("span"); more.className = "turnMore"; more.textContent = `+${names.length - max}`;
+      wrap.append(more);
+    }
+    return wrap;
+  }
+
+  function renderTurns() {
+    const now = state.turn.filter((n) => state.off.includes(n));
+    $("turnNowText").textContent = now.length
+      ? `You ruled out ${now.length} cookie${now.length > 1 ? "s" : ""} this turn.`
+      : "You haven't ruled out any cookies since your last question.";
+    $("turnNowPics").replaceChildren(pics(now));
+    $("turnForm").hidden = !now.length;
+
+    const log = $("turnLog");
+    log.replaceChildren();
+    $("turnEmpty").hidden = state.turns.length > 0;
+    state.turns.forEach((t, i) => {
+      const li = document.createElement("li");
+      li.className = "turnItem" + (t.back ? " isBack" : "");
+      li.innerHTML = `<div class="turnHead"><span class="turnNum"></span><span class="turnQText"></span></div><div class="turnPics"></div>` +
+        `<div class="turnActions"><button class="ghost bringBack" type="button"></button><button class="ghost removeQ" type="button">Remove</button></div>`;
+      li.querySelector(".turnNum").textContent = `Q${state.turns.length - i}`;
+      li.querySelector(".turnQText").textContent = t.q || "(no question written)";
+      li.querySelector(".turnPics").append(pics(t.out, 10));
+      const still = t.out.filter((n) => state.off.includes(n));
+      const btn = li.querySelector(".bringBack");
+      btn.textContent = still.length ? `Bring back ${still.length}` : "All back on the board";
+      btn.disabled = !still.length;
+      btn.onclick = () => bringBack(i);
+      li.querySelector(".removeQ").onclick = () => removeQuestion(i, li);
+      log.append(li);
+    });
+  }
+
+  function endTurn(e) {
+    e?.preventDefault();
+    const now = state.turn.filter((n) => state.off.includes(n));
+    if (!now.length) return;
+    state.turns.unshift({ q: $("turnQ").value.trim().slice(0, 120), out: now, back: false });
+    state.turn = [];
+    $("turnQ").value = "";
+    save(); renderTurns(); updateSide();
+    track("end_turn");
+    window.FX?.boing?.($("turnLog").firstElementChild, 0.4);
+  }
+
+  // removes a question from the log only; its cookies stay as they are on the board
+  function removeQuestion(i, li) {
+    if (!state.turns[i]) return;
+    const done = () => { state.turns.splice(i, 1); save(); renderTurns(); updateSide(); };
+    li.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(40px) scale(.95)" }], { duration: 220, easing: "ease-in" });
+    setTimeout(done, 210);
+  }
+
+  function bringBack(i) {
+    const t = state.turns[i];
+    if (!t) return;
+    const back = new Set(t.out);
+    state.off = state.off.filter((n) => !back.has(n));
+    state.turn = state.turn.filter((n) => !back.has(n));
+    t.back = true;
+    t.out.forEach((n) => track("bring_back", n));
+    track("question_back");
+    save(); updateCards(); updateSide(); renderTurns();
+    // the cookies that came back give a little hop
+    t.out.forEach((n, k) => {
+      const card = $("grid").querySelector(`.card[data-name="${CSS.escape(n)}"]`);
+      if (card) setTimeout(() => window.FX?.hop?.(card), k * 40);
+    });
+  }
+
+  $("endTurn").onclick = () => {
+    renderTurns();
+    $("turnDialog").showModal();
+    if (!$("turnForm").hidden) $("turnQ").focus();
+  };
+  $("turnForm").addEventListener("submit", endTurn);
+  $("turnClose").onclick = () => $("turnDialog").close();
+  $("turnDialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+
   render();
+  updateBoardUi();
 })();
