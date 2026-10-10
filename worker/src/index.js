@@ -16,8 +16,8 @@
 //   - cookie / background / rarity names must exist in the live site's cookies.js and backgrounds.js
 //   - each player can add at most 120 events per minute, and a visit counts at most every 30 minutes
 
-const SITE = "https://jotryx.github.io/LuckyDucky-GuessWho/";
-const ALLOWED_ORIGINS = ["https://jotryx.github.io"];
+const SITE = "https://luckyducky-guesswho.pages.dev/";
+const ALLOWED_ORIGINS = ["https://luckyducky-guesswho.pages.dev", "https://jotryx.github.io"];
 
 const MAX_EVENTS = 40;            // per request
 const MAX_PER_MINUTE = 120;       // per player
