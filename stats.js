@@ -1,4 +1,5 @@
-// Sends anonymous game events to the stats Worker in small batches.
+// Sends anonymous game events to the stats Worker in batches, about once a minute (and when the
+// tab is hidden or closed), so the free plan's daily limits go a long way.
 // Nothing personal is sent: a player pass handed out by the Worker (random, hashed again on the
 // server), what happened ("rule_out") and, for some events, which cookie/background it was about.
 (() => {
@@ -57,7 +58,7 @@
   function flush() {
     if (!queue.length) return;
     if (!pass) { getPass(); return; }   // events wait until there's a pass
-    const body = JSON.stringify({ id: pass, events: queue.splice(0, 40) });
+    const body = JSON.stringify({ id: pass, events: queue.splice(0, 100) });
     if (debug) {   // debug mode reads the answer, so it can say whether the batch was accepted
       fetch(url + "/event", { method: "POST", body, headers: { "Content-Type": "text/plain" } })
         .then((r) => r.json())
@@ -75,10 +76,10 @@
   }
 
   window.track = (t, c, extra) => {
-    if (queue.length < 400) queue.push({ t, ...(c ? { c } : {}), ...(extra || {}) });
-    if (queue.length >= 40) flush();
+    if (queue.length < 1000) queue.push({ t, ...(c ? { c } : {}), ...(extra || {}) });
+    if (queue.length >= 100) flush();
   };
-  setInterval(flush, 5000);
+  setInterval(flush, 60000);
   addEventListener("visibilitychange", () => document.visibilityState === "hidden" && flush());
   addEventListener("pagehide", flush);
 

@@ -6,7 +6,8 @@
 //
 // Privacy: nothing about the request (IP, browser, location) is stored. The player pass is random;
 // it is hashed with a secret SALT before it touches the database, so stored ids can't be matched
-// back to a device. Daily rows are deleted after 35 days. Only counts are kept, never what anyone typed.
+// back to a device. Per player only the first and last day played are kept. Only counts are kept,
+// never what anyone typed.
 //
 // Against bots, without bothering real players:
 //   - events need a player pass signed by this Worker (made-up ids are ignored)
@@ -14,15 +15,17 @@
 //     (the IP is only used as a short-lived counter key there and is never written anywhere)
 //   - only browsers on the game's own site are accepted
 //   - cookie / background / rarity names must exist in the live site's cookies.js and backgrounds.js
-//   - each player can add at most 120 events per minute, and a visit counts at most every 30 minutes
+//   - each player can send at most a few batches per minute, and a visit counts at most every 30 minutes
+//
+// Keeping the free plan's 100k rows written per day: every count lives in ONE row holding a JSON object
+// ({"rule_out": 52000, "out:Pure Vanilla Cookie": 410, ...}), so a whole batch of up to 100 events writes
+// 1 row, plus 1 for a player's visit. The game also only sends a batch about once a minute.
 
 const SITE = "https://luckyducky-guesswho.pages.dev/";
 const ALLOWED_ORIGINS = ["https://luckyducky-guesswho.pages.dev", "https://jotryx.github.io"];
 
-const MAX_EVENTS = 40;            // per request
-const MAX_PER_MINUTE = 120;       // per player
+const MAX_EVENTS = 100;           // per request
 const VISIT_EVERY_MS = 30 * 60e3; // a player's visit counts at most once per 30 minutes
-const KEEP_DAYS = 35;
 const LEGACY_UNTIL = Date.parse("2026-10-04T12:00:00Z");   // old unsigned ids still work until then
 
 // event type -> counter it adds to; "per" events also count per cookie / background / rarity
@@ -66,9 +69,8 @@ const fromGame = (req) => {
 const looksLikeBrowser = (req) => /Mozilla\/5\.0/.test(req.headers.get("User-Agent") || "");
 
 // Cloudflare's rate limiter keeps these counters in memory for a minute; nothing is stored by us.
-async function allowed(limiter, req) {
+async function allowed(limiter, req, key = req.headers.get("CF-Connecting-IP") || "local") {
   if (!limiter) return true;   // not configured (e.g. some local setups)
-  const key = req.headers.get("CF-Connecting-IP") || "local";
   try { return (await limiter.limit({ key })).success; } catch { return true; }
 }
 
@@ -154,17 +156,13 @@ async function handleEvents(request, env) {
   const h = await hashId(id, env.SALT);
   const day = today(), now = Date.now();
 
-  // per-player limit
-  const minute = Math.floor(now / 60000);
-  const used = await db.prepare(
-    "INSERT INTO rate (h, m, n) VALUES (?, ?, ?) ON CONFLICT(h, m) DO UPDATE SET n = n + excluded.n RETURNING n"
-  ).bind(h, minute, events.length).first("n");
-  if (used > MAX_PER_MINUTE) return json({ ok: false, error: "slow down" });
+  // per-player limit (in memory, so it costs no database writes)
+  if (!(await allowed(env.PLAYER_LIMIT, request, h))) return json({ ok: false, error: "slow down" });
 
+  // add the batch up first: { "rule_out": 12, "out:Pure Vanilla Cookie": 1, "min:fastest_win_ms": 41000 }
   const list = await knownNames();
-  const add = db.prepare("INSERT INTO counters (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = v + excluded.v");
-  const least = db.prepare("INSERT INTO counters (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = MIN(v, excluded.v)");
-  const statements = [];
+  const bump = {};
+  const inc = (key, n = 1) => { bump[key] = (bump[key] || 0) + n; };
 
   for (const e of events) {
     const rule = EVENTS[e?.t];
@@ -178,8 +176,7 @@ async function handleEvents(request, env) {
          RETURNING last_visit`
       ).bind(h, day, now, now - VISIT_EVERY_MS).first();
       if (!row) continue;   // visited less than 30 minutes ago
-      statements.push(db.prepare("INSERT OR IGNORE INTO seen (day, h) VALUES (?, ?)").bind(day, h));
-      statements.push(add.bind(rule.key, 1));
+      inc(rule.key);
       continue;
     }
 
@@ -189,44 +186,60 @@ async function handleEvents(request, env) {
       name = nameFor(rule, e.c, list);
       if (!name) continue;
     }
-    statements.push(add.bind(rule.key, 1));
-    if (name) statements.push(add.bind(`${rule.per}:${name}`, 1));
+    inc(rule.key);
+    if (name) inc(`${rule.per}:${name}`);
 
     // a win carries how long the game took and how many cookies were ruled out
     if (e.t === "guess_right" && Number.isFinite(e.ms) && e.ms > 2000 && e.ms < 864e5) {
       const ms = Math.round(e.ms);
-      statements.push(add.bind("win_ms_total", ms), add.bind("wins_timed", 1), least.bind("fastest_win_ms", ms));
-      if (Number.isFinite(e.out) && e.out >= 0 && e.out < 2000) statements.push(add.bind("win_outs_total", Math.round(e.out)));
-      if (Number.isFinite(e.q) && e.q >= 0 && e.q < 500) statements.push(add.bind("win_q_total", Math.round(e.q)), add.bind("wins_q", 1));
+      inc("win_ms_total", ms); inc("wins_timed");
+      bump["min:fastest_win_ms"] = Math.min(bump["min:fastest_win_ms"] ?? ms, ms);
+      if (Number.isFinite(e.out) && e.out >= 0 && e.out < 2000) inc("win_outs_total", Math.round(e.out));
+      if (Number.isFinite(e.q) && e.q >= 0 && e.q < 500) { inc("win_q_total", Math.round(e.q)); inc("wins_q"); }
     }
   }
-  if (Math.random() < 0.02) {
-    statements.push(db.prepare("DELETE FROM seen WHERE day < ?").bind(daysAgo(KEEP_DAYS)));
-    statements.push(db.prepare("DELETE FROM rate WHERE m < ?").bind(minute - 5));
-  }
-  if (statements.length) await db.batch(statements);
+
+  // one write for the whole batch: merge its numbers into the stored JSON object ("min:" keys keep the lowest)
+  if (Object.keys(bump).length) await db.prepare(
+    `INSERT INTO tallies (k, j) VALUES ('all', ?1) ON CONFLICT(k) DO UPDATE SET j = (
+       SELECT json_group_object(key, n) FROM (
+         SELECT key, CASE WHEN key LIKE 'min:%' THEN MIN(value) ELSE SUM(value) END AS n FROM (
+           SELECT key, value FROM json_each(tallies.j) UNION ALL SELECT key, value FROM json_each(excluded.j)
+         ) GROUP BY key))`
+  ).bind(JSON.stringify(bump)).run();
   return json({ ok: true });
 }
 
+// the stats page answer is kept in memory for a minute, so busy stats pages barely touch the database
+let statsCache = null, statsAt = 0;
 async function handleStats(env) {
+  if (statsCache && Date.now() - statsAt < 60e3) return json(statsCache, { "Cache-Control": "public, max-age=60" });
   const db = env.DB;
-  const [counters, total, todayCount, week, returning] = await db.batch([
-    db.prepare("SELECT k, v FROM counters"),
+  const [rows, total, todayCount, week, returning] = await db.batch([
+    db.prepare("SELECT k, j FROM tallies"),
     db.prepare("SELECT COUNT(*) AS n FROM players"),
-    db.prepare("SELECT COUNT(*) AS n FROM seen WHERE day = ?").bind(today()),
-    db.prepare("SELECT COUNT(DISTINCT h) AS n FROM seen WHERE day >= ?").bind(daysAgo(6)),
+    db.prepare("SELECT COUNT(*) AS n FROM players WHERE last_day = ?").bind(today()),
+    db.prepare("SELECT COUNT(*) AS n FROM players WHERE last_day >= ?").bind(daysAgo(6)),
     db.prepare("SELECT COUNT(*) AS n FROM players WHERE first_day <> last_day"),
   ]);
 
+  // the "all" row; rows from the earlier one-row-per-list layout ("totals", "out", ...) are added in
   const totals = {}, lists = {};
-  for (const { k, v } of counters.results) {
-    const i = k.indexOf(":");
-    if (i < 0) totals[k] = v;
-    else (lists[k.slice(0, i)] ||= []).push([k.slice(i + 1), v]);
+  const put = (key, v) => {
+    if (key.startsWith("min:")) { key = key.slice(4); totals[key] = Math.min(totals[key] ?? v, v); return; }
+    const i = key.indexOf(":");
+    if (i < 0) { totals[key] = (totals[key] || 0) + v; return; }
+    const l = (lists[key.slice(0, i)] ||= {}), name = key.slice(i + 1);
+    l[name] = (l[name] || 0) + v;
+  };
+  for (const { k, j } of rows.results) {
+    for (const [key, v] of Object.entries(JSON.parse(j))) {
+      put(k === "all" ? key : k === "totals" ? key : k === "least" ? `min:${key}` : `${k}:${key}`, v);
+    }
   }
-  const top = (prefix, n = 8) => (lists[prefix] || []).sort((a, b) => b[1] - a[1]).slice(0, n);
+  const top = (list, n = 8) => Object.entries(lists[list] || {}).sort((a, b) => b[1] - a[1]).slice(0, n);
 
-  return json({
+  statsCache = {
     updated: new Date().toISOString(),
     players: {
       total: total.results[0].n,
@@ -239,7 +252,9 @@ async function handleStats(env) {
       picked: top("pick"), ruledOut: top("out"), broughtBack: top("back"),
       guessed: top("right"), wrong: top("wrong"), backgrounds: top("bg", 6), rarities: top("rarity", 10),
     },
-  }, { "Cache-Control": "public, max-age=30" });
+  };
+  statsAt = Date.now();
+  return json(statsCache, { "Cache-Control": "public, max-age=60" });
 }
 
 export default {

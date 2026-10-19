@@ -54,5 +54,5 @@ Then set `window.STATS_URL = "http://127.0.0.1:8787"` while testing (and set it 
 ## Starting the counts over
 
 ```
-npx wrangler d1 execute guesswho-stats --remote --command "DELETE FROM counters; DELETE FROM players; DELETE FROM seen;"
+npx wrangler d1 execute guesswho-stats --remote --command "DELETE FROM tallies; DELETE FROM players;"
 ```

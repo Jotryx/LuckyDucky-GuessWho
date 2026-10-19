@@ -13,9 +13,14 @@ database_id = "bf2cb9e6-7fbc-458c-a66e-bc872128411a"   # from: npx wrangler d1 c
 [[ratelimits]]
 name = "NEW_PLAYERS"        # new player passes per connection per minute
 namespace_id = "1001"
-simple = { limit = 10, period = 60 }
+simple = { limit = 20, period = 60 }
 
 [[ratelimits]]
 name = "EVENT_LIMIT"        # event batches per connection per minute (a busy player sends ~12)
 namespace_id = "1002"
 simple = { limit = 120, period = 60 }
+
+[[ratelimits]]
+name = "PLAYER_LIMIT"       # event batches per player per minute (the game sends ~1, more when busy)
+namespace_id = "1003"
+simple = { limit = 20, period = 60 }
