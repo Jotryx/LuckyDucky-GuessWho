@@ -918,10 +918,34 @@ window.COOKIES = [
     "src": "images/collab/03-special/glinda-cookie.webp"
   },
   {
+    "name": "J-hope Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/j-hope-cookie.webp"
+  },
+  {
     "name": "Jax Cookie",
     "rarity": "Special",
     "collab": true,
     "src": "images/collab/03-special/jax-cookie.webp"
+  },
+  {
+    "name": "Jimin Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/jimin-cookie.webp"
+  },
+  {
+    "name": "Jin Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/jin-cookie.webp"
+  },
+  {
+    "name": "Jung Kook Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/jung-kook-cookie.webp"
   },
   {
     "name": "Mira Cookie",
@@ -936,6 +960,12 @@ window.COOKIES = [
     "src": "images/collab/03-special/pomni-cookie.webp"
   },
   {
+    "name": "RM Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/RM-cookie.webp"
+  },
+  {
     "name": "Rumi Cookie",
     "rarity": "Special",
     "collab": true,
@@ -948,10 +978,22 @@ window.COOKIES = [
     "src": "images/collab/03-special/sonic-cookie.webp"
   },
   {
+    "name": "SUGA Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/SUGA-cookie.webp"
+  },
+  {
     "name": "Tails Cookie",
     "rarity": "Special",
     "collab": true,
     "src": "images/collab/03-special/tails-cookie.webp"
+  },
+  {
+    "name": "V Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/v-cookie.webp"
   },
   {
     "name": "Zoey Cookie",
@@ -966,10 +1008,40 @@ window.COOKIES = [
     "src": "images/collab/11-guest/abby-cookie.webp"
   },
   {
+    "name": "Aladdin Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/aladdin-cookie.webp"
+  },
+  {
+    "name": "Alice Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/alice-cookie.webp"
+  },
+  {
+    "name": "Ariel Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/ariel-cookie.webp"
+  },
+  {
     "name": "Baby Cookie",
     "rarity": "Guest",
     "collab": true,
     "src": "images/collab/11-guest/baby-cookie.webp"
+  },
+  {
+    "name": "Beast Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/beast-cookie.webp"
+  },
+  {
+    "name": "Belle Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/belle-cookie.webp"
   },
   {
     "name": "Caine Cookie",
@@ -978,16 +1050,46 @@ window.COOKIES = [
     "src": "images/collab/11-guest/caine-cookie.webp"
   },
   {
+    "name": "Cinderella Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/cinderella-cookie.webp"
+  },
+  {
+    "name": "Daisy Duck Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/daisy-duck-cookie.webp"
+  },
+  {
     "name": "Derpy and Sussie",
     "rarity": "Guest",
     "collab": true,
     "src": "images/collab/11-guest/derpy-and-sussie.webp"
   },
   {
+    "name": "Donald Duck Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/donald-duck-cookie.webp"
+  },
+  {
     "name": "Gangle Cookie",
     "rarity": "Guest",
     "collab": true,
     "src": "images/collab/11-guest/gangle-cookie.webp"
+  },
+  {
+    "name": "Goofy Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/goofy-cookie.webp"
+  },
+  {
+    "name": "Jasmine Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/jasmine-cookie.webp"
   },
   {
     "name": "Jinu Cookie",
@@ -1002,10 +1104,52 @@ window.COOKIES = [
     "src": "images/collab/11-guest/kinger-cookie.webp"
   },
   {
+    "name": "Lilo Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/lilo-cookie.webp"
+  },
+  {
+    "name": "Mickey Mouse Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/mickey-mouse-cookie.webp"
+  },
+  {
+    "name": "Minnie Mouse Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/minnie-mouse-cookie.webp"
+  },
+  {
+    "name": "Mulan Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/mulan-cookie.webp"
+  },
+  {
     "name": "Mystery Cookie",
     "rarity": "Guest",
     "collab": true,
     "src": "images/collab/11-guest/mystery-cookie.webp"
+  },
+  {
+    "name": "Peter Pan Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/peter-pan-cookie.webp"
+  },
+  {
+    "name": "Pocahontas Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/pocahontas-cookie.webp"
+  },
+  {
+    "name": "Princess Aurora Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/princess-aurora-cookie.webp"
   },
   {
     "name": "Ragatha Cookie",
@@ -1018,6 +1162,18 @@ window.COOKIES = [
     "rarity": "Guest",
     "collab": true,
     "src": "images/collab/11-guest/romance-cookie.webp"
+  },
+  {
+    "name": "Stitch Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/stitch-cookie.webp"
+  },
+  {
+    "name": "Tinker Bell Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/tinker-bell-cookie.webp"
   },
   {
     "name": "Zooble Cookie",
