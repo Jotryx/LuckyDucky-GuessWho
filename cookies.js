@@ -1164,6 +1164,12 @@ window.COOKIES = [
     "src": "images/collab/11-guest/romance-cookie.webp"
   },
   {
+    "name": "Snow White Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/snow-white-cookie.webp"
+  },
+  {
     "name": "Stitch Cookie",
     "rarity": "Guest",
     "collab": true,
