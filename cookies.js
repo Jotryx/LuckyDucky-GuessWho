@@ -561,6 +561,11 @@ window.COOKIES = [
     "src": "images/04-epic/purple-yam-cookie.webp"
   },
   {
+    "name": "Rambutan Cookie",
+    "rarity": "Epic",
+    "src": "images/04-epic/rambutan-cookie.webp"
+  },
+  {
     "name": "Raspberry Cookie",
     "rarity": "Epic",
     "src": "images/04-epic/raspberry-cookie.webp"
@@ -774,6 +779,11 @@ window.COOKIES = [
     "name": "Ananas Dragon Cookie",
     "rarity": "Dragon",
     "src": "images/06-dragon/ananas-dragon-cookie.webp"
+  },
+  {
+    "name": "Lychee Dragon Cookie",
+    "rarity": "Dragon",
+    "src": "images/06-dragon/lychee-dragon-cookie.webp"
   },
   {
     "name": "Pitaya Dragon Cookie",

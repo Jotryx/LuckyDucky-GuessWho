@@ -9,11 +9,11 @@
     const count = Math.min(Math.max(parseInt(demo, 10) || 80, 1), 500);
     cookies = Array.from({ length: count }, (_, i) => {
       const c = cookies[i % cookies.length];
-      return { name: `Demo ${i + 1}`, src: c.src, rarity: c.rarity };
+      return { name: `Demo ${i + 1}`, src: c.src, rarity: c.rarity, collab: c.collab };
     });
   }
   const KEY = demo !== null ? "crk-guess-who-demo" : "crk-guess-who-v1";
-  let state = { secret: null, off: [], pending: null, bg: null, hide: false, hideOut: false };
+  let state = { secret: null, off: [], pending: null, bg: null, hide: false, hideOut: false, collab: false };
   try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch {}
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
   // question log: cookies ruled out this turn, and earlier turns ({ q, out: [names], back })
@@ -25,24 +25,29 @@
   // ---------- board codes: the same random board on every device ----------
   // A code like "7Q4M-40" is a seed plus a board size. The seed always shuffles the full cookie list
   // the same way, so two players who enter the same code get exactly the same cookies (no server needed).
+  // A "C" at the end ("7Q4M-40C") means collab cookies (Sonic, Wicked, ...) are in the mix.
   const CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";   // no 0/O, 1/I/L mix-ups
   const allCookies = cookies.slice();
+  const hasCollabs = () => allCookies.some((c) => c.collab);
+  const pool = () => (state.collab ? allCookies : allCookies.filter((c) => !c.collab));   // cookies this game can use
 
-  // any size works: "7Q4M-25", "7Q4M-37", "7Q4M-ALL"
+  // any size works: "7Q4M-25", "7Q4M-37C", "7Q4M-ALL"
   function parseBoard(text) {
-    const m = /^([A-Z2-9]{4})[-\s]*(\d{1,3}|ALL)$/.exec(String(text || "").toUpperCase().replace(/\s+/g, " ").trim());
+    const m = /^([A-Z2-9]{4})[-\s]*(\d{1,3}|ALL)\s*(C?)$/.exec(String(text || "").toUpperCase().replace(/\s+/g, " ").trim());
     if (!m || ![...m[1]].every((ch) => CODE_CHARS.includes(ch))) return null;
-    if (m[2] === "ALL") return `${m[1]}-ALL`;
+    if (m[2] === "ALL") return `${m[1]}-ALL${m[3]}`;
     const n = parseInt(m[2], 10);
-    return n >= 2 ? `${m[1]}-${n}` : null;
+    return n >= 2 ? `${m[1]}-${n}${m[3]}` : null;
   }
+  const codeCollab = (code) => /C$/.test(code || "");
+  const withCollab = (code, on) => code.replace(/C$/, "") + (on ? "C" : "");
   function newBoardCode(size) {
     const r = crypto.getRandomValues(new Uint32Array(4));
-    return [...r].map((n) => CODE_CHARS[n % CODE_CHARS.length]).join("") + "-" + size;
+    return withCollab([...r].map((n) => CODE_CHARS[n % CODE_CHARS.length]).join("") + "-" + size, state.collab);
   }
   function boardCookies(list, code) {
     if (!code) return list;
-    const [seed, size] = code.split("-");
+    const [seed, size] = code.replace(/C$/, "").split("-");
     if (size === "ALL") return list;
     let h = 2166136261;                                    // FNV-1a hash of the seed
     for (const ch of seed) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
@@ -56,17 +61,19 @@
     for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
     return idx.slice(0, Math.min(+size, list.length)).sort((a, b) => a - b).map((i) => list[i]);   // keep the usual order
   }
-  const applyBoard = () => { cookies = boardCookies(allCookies, state.board); };
+  const applyBoard = () => { cookies = boardCookies(pool(), state.board); };
 
   // a shared link (?board=7Q4M-40) opens straight onto that board
   {
     const params = new URLSearchParams(location.search), fromLink = parseBoard(params.get("board"));
-    if (fromLink && fromLink !== state.board) Object.assign(state, { board: fromLink, secret: null, off: [], pending: null });
+    if (fromLink && fromLink !== state.board) Object.assign(state, { board: fromLink, secret: null, off: [], pending: null }, freshLog);
     if (params.has("board")) {
       params.delete("board");
       history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "") + location.hash);
     }
     if (state.board && !parseBoard(state.board)) state.board = null;
+    if (state.board) state.collab = codeCollab(state.board);   // a board code says whether collabs are in
+    if (state.board?.includes("-ALL")) state.board = null;       // "-ALL" boards are just "all cookies"
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
   }
   applyBoard();
@@ -508,13 +515,15 @@
     $("boardCount").textContent = `${cookies.length} cookie${cookies.length === 1 ? "" : "s"}`;
     $("copyCode").hidden = $("copyLink").hidden = !code;
     $("allBoard").hidden = !code;
-    $("sizeAll").textContent = `All ${allCookies.length}`;
+    $("sizeAll").textContent = `All ${pool().length}`;
+    $("collabRow").hidden = !hasCollabs();
+    $("collabToggle").checked = !!state.collab;
     $("boardWarn").hidden = !(state.secret || state.off.length);
   }
-  function setBoard(code) {
-    if ((code || null) === (state.board || null)) return;
+  function setBoard(code, collab = code ? codeCollab(code) : state.collab) {
+    if ((code || null) === (state.board || null) && !!collab === !!state.collab) return;
     guessing = false;
-    Object.assign(state, { board: code, secret: null, off: [], pending: null }, freshLog);
+    Object.assign(state, { board: code, collab: !!collab, secret: null, off: [], pending: null }, freshLog);
     save(); applyBoard(); render(); updateBoardUi();
     window.FX?.boing?.($("boardCode"), 0.6);
   }
@@ -540,7 +549,7 @@
   function showCustom() {
     const custom = document.querySelector('input[name="boardSize"]:checked')?.value === "CUSTOM";
     $("customRow").hidden = !custom;
-    $("customSize").max = allCookies.length;
+    $("customSize").max = pool().length;
   }
   document.querySelectorAll('input[name="boardSize"]').forEach((r) => r.addEventListener("change", () => {
     showCustom();
@@ -558,11 +567,16 @@
         $("customSize").focus();
         return;
       }
-      size = n >= allCookies.length ? "ALL" : String(n);
-    } else if (size !== "ALL" && +size >= allCookies.length) size = "ALL";
+      size = n >= pool().length ? "ALL" : String(n);
+    } else if (size !== "ALL" && +size >= pool().length) size = "ALL";
     setBoard(size === "ALL" ? null : newBoardCode(size));
   };
   $("allBoard").onclick = () => setBoard(null);
+  // Collab cookies on/off: the same board (seed and size), with or without them, as a new game
+  $("collabToggle").addEventListener("change", (e) => {
+    const on = e.target.checked;
+    setBoard(state.board ? withCollab(state.board, on) : null, on);
+  });
   $("joinForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const code = parseBoard($("joinCode").value);
@@ -571,8 +585,8 @@
       $("joinCode").animate([{ translate: "0" }, { translate: "-8px" }, { translate: "7px" }, { translate: "-4px" }, { translate: "0" }], { duration: 360 });
       return;
     }
-    setBoard(code.endsWith("-ALL") ? null : code);
-    $("joinMsg").textContent = `Joined board ${code}!`;
+    setBoard(code.includes("-ALL") ? null : code, codeCollab(code));
+    $("joinMsg").textContent = `Joined board ${code}!` + (codeCollab(code) && hasCollabs() ? " (with collab cookies)" : "");
   });
   $("copyCode").onclick = (e) => copy(state.board, e.currentTarget);
   $("copyLink").onclick = (e) => copy(boardLink(state.board), e.currentTarget);
