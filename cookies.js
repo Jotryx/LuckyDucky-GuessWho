@@ -904,5 +904,125 @@ window.COOKIES = [
     "name": "Dark Enchantress Cookie",
     "rarity": "Witch",
     "src": "images/10-witch/dark-enchantress-cookie.webp"
+  },
+  {
+    "name": "Elphaba Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/elphaba-cookie.webp"
+  },
+  {
+    "name": "Glinda Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/glinda-cookie.webp"
+  },
+  {
+    "name": "Jax Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/jax-cookie.webp"
+  },
+  {
+    "name": "Mira Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/mira-cookie.webp"
+  },
+  {
+    "name": "Pomni Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/pomni-cookie.webp"
+  },
+  {
+    "name": "Rumi Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/rumi-cookie.webp"
+  },
+  {
+    "name": "Sonic Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/sonic-cookie.webp"
+  },
+  {
+    "name": "Tails Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/tails-cookie.webp"
+  },
+  {
+    "name": "Zoey Cookie",
+    "rarity": "Special",
+    "collab": true,
+    "src": "images/collab/03-special/zoey-cookie.webp"
+  },
+  {
+    "name": "Abby Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/abby-cookie.webp"
+  },
+  {
+    "name": "Baby Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/baby-cookie.webp"
+  },
+  {
+    "name": "Caine Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/caine-cookie.webp"
+  },
+  {
+    "name": "Derpy and Sussie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/derpy-and-sussie.webp"
+  },
+  {
+    "name": "Gangle Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/gangle-cookie.webp"
+  },
+  {
+    "name": "Jinu Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/jinu-cookie.webp"
+  },
+  {
+    "name": "Kinger Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/kinger-cookie.webp"
+  },
+  {
+    "name": "Mystery Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/mystery-cookie.webp"
+  },
+  {
+    "name": "Ragatha Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/ragatha-cookie.webp"
+  },
+  {
+    "name": "Romance Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/romance-cookie.webp"
+  },
+  {
+    "name": "Zooble Cookie",
+    "rarity": "Guest",
+    "collab": true,
+    "src": "images/collab/11-guest/zooble-cookie.webp"
   }
 ];
