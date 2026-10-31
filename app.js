@@ -248,6 +248,10 @@
     $("pickCtl").hidden = !cookies.length || !pick;
     $("boardCtl").hidden = !cookies.length || pick;
     $("lock").disabled = !state.pending;
+    // quick collab switch while choosing; it goes away once a cookie is picked
+    $("collabBtn").hidden = !pick || !!state.pending || !hasCollabs();
+    $("collabBtn").setAttribute("aria-pressed", !!state.collab);
+    $("collabBtn").textContent = `Collab cookies: ${state.collab ? "On" : "Off"}`;
     $("guess").setAttribute("aria-pressed", guessing);
     $("guess").textContent = guessing ? "Cancel guess" : "GUESS A COOKIE!";
     document.body.dataset.guessing = guessing;
@@ -573,10 +577,9 @@
   };
   $("allBoard").onclick = () => setBoard(null);
   // Collab cookies on/off: the same board (seed and size), with or without them, as a new game
-  $("collabToggle").addEventListener("change", (e) => {
-    const on = e.target.checked;
-    setBoard(state.board ? withCollab(state.board, on) : null, on);
-  });
+  const setCollab = (on) => setBoard(state.board ? withCollab(state.board, on) : null, on);
+  $("collabToggle").addEventListener("change", (e) => setCollab(e.target.checked));
+  $("collabBtn").onclick = () => setCollab(!state.collab);
   $("joinForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const code = parseBoard($("joinCode").value);

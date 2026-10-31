@@ -2065,6 +2065,14 @@ body[data-guessing="true"] .card[aria-pressed="true"] {
    Question log: End turn and earlier questions
    ========================================================= */
 
+/* the quick collab switch while choosing a cookie: teal when collab cookies are on */
+.collabBtn[aria-pressed="true"] {
+  border-color: #2a8a86;
+  background: #d8f4ef;
+  color: #135a57;
+  box-shadow: 0 3px 0 #2a8a86;
+}
+
 /* lights up once there's something to save this turn */
 .endTurn.ready {
   border-color: #2a8a86;
