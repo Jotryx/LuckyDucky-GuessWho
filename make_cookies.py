@@ -19,11 +19,12 @@ the site: "05-super-epic" -> "Super Epic". Images straight in images/ are listed
 
 Collab cookies (Sonic, Wicked, ...) go in images/collab/, again in numbered rarity folders:
 
-    images/collab/03-special/sonic.png
-    images/collab/11-guest/jinu.png
+    images/collab/03.1-special/sonic-cookie.png     right after the regular 03 Specials
+    images/collab/03.2-guest/jinu-cookie.png        then the Guests
 
-They're marked as collab in cookies.js, listed after all other cookies, and only show up in the
-game when "Collab cookies" is switched on.
+Their numbers place them among the regular folders (03.1 and 03.2 come after 03, before 04).
+They're marked as collab in cookies.js and only show up in the game when "Collab cookies" is
+switched on.
 
 Run it again whenever you add, remove or rename images:
 
@@ -65,8 +66,8 @@ def natural_key(text):
 
 
 def rarity_from_folder(folder_name):
-    """'05-super-epic' -> 'Super Epic'"""
-    return name_from_filename(re.sub(r"^\d+[-_ ]*", "", folder_name))
+    """'05-super-epic' -> 'Super Epic', '03.1-special' -> 'Special'"""
+    return name_from_filename(re.sub(r"^\d+(\.\d+)?[-_ ]*", "", folder_name))
 
 
 def add_file(f, group, rarity, folder, images, overrides, cookies, skipped, collab=False):
@@ -102,21 +103,25 @@ def main():
     def subfolders(d):
         return sorted((x for x in d.iterdir() if x.is_dir() and not x.name.startswith(".")),
                       key=lambda x: natural_key(x.name))
-    collab_dir = images / "collab"
-    folders = [d for d in subfolders(images) if d != collab_dir]
-    cookies, skipped = [], []
-    for group, folder in enumerate(folders + [images]):
-        rarity = rarity_from_folder(folder.name) if folder != images else ""
-        for f in folder.iterdir():
-            add_file(f, group, rarity, folder, images, overrides, cookies, skipped)
+    def number(folder):
+        """'03.1-special' -> (3, 1), '04-epic' -> (4, 0); unnumbered folders go last"""
+        m = re.match(r"(\d+)(?:\.(\d+))?", folder.name)
+        return (int(m.group(1)), int(m.group(2) or 0)) if m else (10**9, 0)
 
-    # collab cookies come after everything else
+    # regular and collab rarity folders sorted together by their number, so collab folders
+    # numbered 03.1, 03.2 sit right after the regular 03 folder
+    collab_dir = images / "collab"
+    folders = [(d, False) for d in subfolders(images) if d != collab_dir]
     if collab_dir.is_dir():
-        start = len(folders) + 1
-        for group, folder in enumerate(subfolders(collab_dir) + [collab_dir], start):
-            rarity = rarity_from_folder(folder.name) if folder != collab_dir else ""
-            for f in folder.iterdir():
-                add_file(f, group, rarity, folder, images, overrides, cookies, skipped, collab=True)
+        folders += [(d, True) for d in subfolders(collab_dir)]
+    folders.sort(key=lambda fc: (number(fc[0]), fc[1], natural_key(fc[0].name)))
+    folders += [(images, False)] + ([(collab_dir, True)] if collab_dir.is_dir() else [])   # loose images last
+
+    cookies, skipped = [], []
+    for group, (folder, collab) in enumerate(folders):
+        rarity = rarity_from_folder(folder.name) if folder not in (images, collab_dir) else ""
+        for f in folder.iterdir():
+            add_file(f, group, rarity, folder, images, overrides, cookies, skipped, collab=collab)
 
     cookies.sort(key=lambda c: (c["group"], natural_key(c["name"])))
 
