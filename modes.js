@@ -18,15 +18,20 @@
   // ---------- the cookies on the two cards ----------
   const regular = (window.COOKIES || []).filter((c) => !c.collab);
   const sample = (n) => regular.slice().sort(() => Math.random() - 0.5).slice(0, n);
-  function art(box, cookies) {
+  // Guess Who: two fanned-out rows of cookie cards, like two hands of a deck (back row first)
+  function art(box, cookies, row) {
     cookies.forEach((c, i) => {
       const img = new Image();
       img.src = c.src; img.alt = ""; img.draggable = false;
+      img.className = row;
       img.style.setProperty("--i", i);
+      img.style.setProperty("--o", i - (cookies.length - 1) / 2);   // how far from the middle of its row
       box.append(img);
     });
   }
-  art(document.querySelector(".whoArt"), sample(3));
+  const hand = sample(11);
+  art(document.querySelector(".whoArt"), hand.slice(0, 6), "back");
+  art(document.querySelector(".whoArt"), hand.slice(6), "front");
   // Guess the Gender: three face-down mystery cards
   [0, 1, 2].forEach((i) => {
     const m = document.createElement("span");

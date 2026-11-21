@@ -2437,6 +2437,65 @@ body[data-screen="gender"] .folder {
   }
 }
 
+/* Guess Who: two fanned-out rows of cookie cards (back row higher and a bit darker), sized by the
+   window's height so they fill it on phones too; the fans spread a little wider on hover */
+.whoArt {
+  container-type: size;
+}
+
+.whoArt img,
+.whoArt img:nth-child(2) {
+  position: absolute;
+  left: 50%;
+  z-index: auto;
+  max-width: none;
+  margin: 0;
+  translate: calc(-50% + var(--dx)) 0;
+  animation: fanIn 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) calc(0.25s + var(--i) * 0.06s) both,
+    fanBob 3s ease-in-out calc(var(--i) * -0.45s) infinite;
+  transition: rotate 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.whoArt img.back {
+  --dx: calc(var(--o) * 11cqw);   /* spread sideways as well as rotated, so the whole window fills */
+  bottom: 30%;
+  width: min(23cqw, 46cqh);
+  transform-origin: 50% 230%;
+  rotate: calc(var(--o) * 8deg);
+  filter: brightness(0.78) saturate(0.85);
+}
+
+.whoArt img.front {
+  --dx: calc(var(--o) * 13cqw);
+  bottom: -8%;
+  width: min(28cqw, 58cqh);
+  transform-origin: 50% 210%;
+  rotate: calc(var(--o) * 9deg);
+  animation-delay: calc(0.55s + var(--i) * 0.07s), calc(var(--i) * -0.45s - 0.2s);
+}
+
+.modeCard:hover .whoArt img.back {
+  rotate: calc(var(--o) * 11deg);
+}
+
+.modeCard:hover .whoArt img.front {
+  rotate: calc(var(--o) * 12deg);
+}
+
+@keyframes fanIn {
+  from {
+    rotate: 0deg;
+    scale: 0.6;
+    opacity: 0;
+  }
+}
+
+@keyframes fanBob {
+  50% {
+    translate: calc(-50% + var(--dx)) -6px;
+  }
+}
+
 /* Guess the Gender: face-down mystery cards with pronoun bubbles */
 .modeArt .mystery {
   display: grid;
