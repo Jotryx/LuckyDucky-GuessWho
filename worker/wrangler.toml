@@ -4,6 +4,13 @@ name = "guesswho-stats"
 main = "src/index.js"
 compatibility_date = "2025-09-01"
 
+# The testers-only mode in private/ (git-ignored) is bundled as plain text and served by src/tester.js
+# only after the password: it is never run by the Worker itself.
+[[rules]]
+type = "Text"
+globs = ["**/private/**", "**/*.txt"]
+fallthrough = false
+
 [[d1_databases]]
 binding = "DB"
 database_name = "guesswho-stats"
@@ -24,3 +31,8 @@ simple = { limit = 120, period = 60 }
 name = "PLAYER_LIMIT"       # event batches per player per minute (the game sends ~1, more when busy)
 namespace_id = "1003"
 simple = { limit = 20, period = 60 }
+
+[[ratelimits]]
+name = "UNLOCK_LIMIT"       # tester password attempts per connection per minute
+namespace_id = "1004"
+simple = { limit = 5, period = 60 }

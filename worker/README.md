@@ -56,3 +56,17 @@ Then set `window.STATS_URL = "http://127.0.0.1:8787"` while testing (and set it 
 ```
 npx wrangler d1 execute guesswho-stats --remote --command "DELETE FROM tallies; DELETE FROM players;"
 ```
+
+## Testers-only game mode (Guess the Gender)
+
+The site's menu shows "Guess the Gender" as *coming soon*. Testers tap that card 5 times quickly and
+enter the tester password. The password and the mode itself never appear in this public repo:
+
+- **The password** is a Cloudflare secret. Set or change it (changing it signs every tester out):
+  ```
+  npx wrangler secret put GENDER_PASSWORD
+  ```
+- **The mode** (code, styles and the gender list) lives in `worker/private/`, which git ignores:
+  `gender.js`, `gender.css` and `genders.txt` (lines like `Example Cookie She/Her`). It is
+  bundled into the Worker by `npx wrangler deploy` and served only with a valid tester pass, so keep a
+  backup of that folder somewhere safe: it is not on GitHub.

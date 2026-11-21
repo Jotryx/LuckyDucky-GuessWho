@@ -3,6 +3,7 @@
 //   GET  /hello   hands a new player a signed player pass (needed to send events)
 //   POST /event   { id: <pass>, events: [{ t: "rule_out", c: "Pure Vanilla Cookie" }, ...] }
 //   GET  /stats   all totals, unique players and top lists, as JSON
+//   POST /unlock and GET /tester/<file>: the testers-only game mode, see tester.js
 //
 // Privacy: nothing about the request (IP, browser, location) is stored. The player pass is random;
 // it is hashed with a secret SALT before it touches the database, so stored ids can't be matched
@@ -20,6 +21,8 @@
 // Keeping the free plan's 100k rows written per day: every count lives in ONE row holding a JSON object
 // ({"rule_out": 52000, "out:Pure Vanilla Cookie": 410, ...}), so a whole batch of up to 100 events writes
 // 1 row, plus 1 for a player's visit. The game also only sends a batch about once a minute.
+
+import { handleUnlock, handleTesterFile } from "./tester.js";
 
 const SITE = "https://luckyducky-guesswho.pages.dev/";
 const ALLOWED_ORIGINS = ["https://luckyducky-guesswho.pages.dev", "https://jotryx.github.io"];
@@ -50,7 +53,7 @@ const EVENTS = {
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 const json = (data, extra = {}) =>
   new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json", ...cors, ...extra } });
@@ -265,6 +268,8 @@ export default {
       if (request.method === "GET" && pathname === "/hello") return await handleHello(request, env);
       if (request.method === "POST" && pathname === "/event") return await handleEvents(request, env);
       if (request.method === "GET" && pathname === "/stats") return await handleStats(env);
+      if (request.method === "POST" && pathname === "/unlock") return await handleUnlock(request, env, { json, fromGame, looksLikeBrowser, allowed });
+      if (request.method === "GET" && pathname.startsWith("/tester/")) return await handleTesterFile(request, env, pathname.slice(8), { cors });
     } catch (err) {
       console.error("stats error:", err && (err.stack || err.message || String(err)));
       return json({ ok: false, error: "server" });

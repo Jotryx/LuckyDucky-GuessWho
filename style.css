@@ -2239,3 +2239,350 @@ body[data-guessing="true"] .card[aria-pressed="true"] {
     grid-column: 1 / -1;
   }
 }
+
+/* =========================================================
+   Game mode menu (modes.js)
+   ========================================================= */
+
+/* only one screen at a time: the menu, Guess Who (the folder) or a tester mode */
+body[data-screen="menu"] .folder,
+body[data-screen="gender"] .folder {
+  display: none;
+}
+
+.modes {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: clamp(4.5rem, 12vh, 7rem) 16px 1.5rem;
+  overflow-y: auto;
+}
+
+.modes.leaving .modesSheet {
+  animation: modesOut 0.5s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+
+@keyframes modesOut {
+  to {
+    transform: translateY(40px) scale(0.92);
+    opacity: 0;
+  }
+}
+
+.modesSheet {
+  position: relative;
+  width: min(940px, 100%);
+  padding: clamp(4.6rem, 11vw, 7rem) clamp(16px, 3vw, 2.4rem) clamp(1.2rem, 3vw, 2.2rem);
+  border: 5px solid var(--tan-edge);
+  border-radius: 28px;
+  background: var(--tan);
+  box-shadow: 0 7px 0 rgba(20, 10, 60, 0.45), 0 24px 20px -14px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  animation: pop 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+.modesLogo {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  margin: 0;
+  width: min(460px, 82vw);
+  translate: -50% -55%;
+  animation: drop 0.9s cubic-bezier(0.3, 1.6, 0.5, 1) 0.1s both, modesBob 4.5s ease-in-out 1s infinite;
+}
+
+/* the shared "bob" would undo the centring (it animates translate), so this one keeps it */
+@keyframes modesBob {
+  50% {
+    translate: -50% calc(-55% - 5px);
+  }
+}
+
+.modesLogo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.2));
+}
+
+.modesTitle {
+  margin: 0 0 1.2rem;
+  font: 400 clamp(1.6rem, 4vw, 2.4rem) / 1.1 var(--display);
+  color: #fff;
+  -webkit-text-stroke: 0.2em var(--wood);
+  paint-order: stroke fill;
+  letter-spacing: 0.04em;
+}
+
+.modeCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: clamp(0.9rem, 2.5vw, 1.6rem);
+}
+
+.modeCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 0.9rem 1.2rem;
+  border: 5px solid var(--tan-edge);
+  border-radius: 24px;
+  background: var(--tan-lite);
+  box-shadow: 0 6px 0 var(--wood), 0 14px 22px rgba(0, 0, 0, 0.22);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  animation: modeIn 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  transition: transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1), box-shadow 0.18s;
+}
+
+.modeCard + .modeCard {
+  animation-delay: 0.12s;
+}
+
+@keyframes modeIn {
+  from {
+    transform: translateY(60px) rotate(-4deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+.modeCard:hover {
+  transform: translateY(-6px) rotate(-1deg);
+  box-shadow: 0 10px 0 var(--wood), 0 22px 28px rgba(0, 0, 0, 0.25);
+}
+
+.modeCard + .modeCard:hover {
+  transform: translateY(-6px) rotate(1deg);
+}
+
+.modeCard:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--wood);
+}
+
+.modeCard:focus-visible {
+  outline: 4px solid var(--mint);
+  outline-offset: 4px;
+}
+
+.modeCard.chosen {
+  animation: chosen 0.5s ease-in forwards;
+}
+
+@keyframes chosen {
+  30% {
+    transform: scale(1.06) rotate(-2deg);
+  }
+  to {
+    transform: scale(1.12);
+    opacity: 0;
+  }
+}
+
+.modeCard.notChosen {
+  animation: notChosen 0.4s ease-in forwards;
+}
+
+@keyframes notChosen {
+  to {
+    transform: translateY(40px) scale(0.85);
+    opacity: 0;
+  }
+}
+
+/* the cookie window at the top of each card */
+.modeArt {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  height: clamp(130px, 22vh, 190px);
+  border-radius: 16px;
+  border: 4px solid var(--tray-edge);
+  background: radial-gradient(circle at 50% 120%, #4b3dc0, var(--tray) 70%);
+  overflow: hidden;
+}
+
+.modeArt img,
+.modeArt .mystery {
+  width: 38%;
+  max-width: 130px;
+  aspect-ratio: 1;
+  margin: 0 -4%;
+  border-radius: 16px;
+  border: 3px solid #2c1d33;
+  object-fit: cover;
+  translate: 0 18%;
+  rotate: calc((var(--i) - 1) * 9deg);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+  animation: artBob 2.6s ease-in-out calc(var(--i) * -0.6s) infinite;
+}
+
+.modeArt img:nth-child(2),
+.modeArt .mystery:nth-child(2) {
+  z-index: 1;
+  width: 44%;
+}
+
+@keyframes artBob {
+  50% {
+    translate: 0 8%;
+  }
+}
+
+/* Guess the Gender: face-down mystery cards with pronoun bubbles */
+.modeArt .mystery {
+  display: grid;
+  place-items: center;
+  font: 400 clamp(2.6rem, 6vw, 4rem) / 1 var(--display);
+  color: #fff;
+  -webkit-text-stroke: 0.08em var(--wood);
+  paint-order: stroke fill;
+  background: linear-gradient(var(--tan-lite), var(--tan));
+  border-color: var(--wood);
+}
+
+.pronounChip {
+  position: absolute;
+  top: calc(12% + var(--i) * 4%);
+  left: calc(10% + var(--i) * 30%);
+  z-index: 2;
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  font: 400 1.05rem var(--display);
+  color: #fff;
+  background: linear-gradient(#ff7ab6, var(--gum));
+  box-shadow: 0 3px 0 #b02a68;
+  animation: chipFloat 2.4s ease-in-out calc(var(--i) * -0.8s) infinite;
+}
+
+.chipHe {
+  background: linear-gradient(#7fd3ff, #3a9bea);
+  box-shadow: 0 3px 0 #1d5f9e;
+}
+
+.chipThey {
+  background: linear-gradient(#b99bff, #8a5ce8);
+  box-shadow: 0 3px 0 #5631a8;
+}
+
+@keyframes chipFloat {
+  50% {
+    translate: 0 -8px;
+    rotate: 4deg;
+  }
+}
+
+.modeName {
+  font: 400 clamp(1.5rem, 3.4vw, 2rem) / 1.1 var(--display);
+  color: var(--wood-dark);
+}
+
+.modeText {
+  max-width: 30ch;
+  font-weight: 700;
+  color: #6b4426;
+}
+
+.modePlay {
+  margin-top: 0.3rem;
+  pointer-events: none;   /* the whole card is the button */
+}
+
+/* "coming soon": dimmed, ribbon across the corner, no Play button */
+.modeCard.soon .modePlay,
+.modeCard.soon .modeTesterText,
+.modeCard.tester .modeSoonText,
+.modeCard.tester .soonRibbon {
+  display: none;
+}
+
+.modeCard.soon .modeArt {
+  filter: saturate(0.6) brightness(0.85);
+}
+
+.modeCard.soon .modeSoonText {
+  font: 400 1.15rem var(--display);
+  color: #8c1238;
+}
+
+.soonRibbon {
+  position: absolute;
+  top: 26px;
+  right: -46px;
+  z-index: 3;
+  width: 190px;
+  padding: 0.3rem 0;
+  rotate: 35deg;
+  font: 400 1rem var(--display);
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: linear-gradient(#ff5a78, #e22d55 60%, #b81d42);
+  box-shadow: 0 4px 0 rgba(94, 20, 40, 0.5);
+  text-shadow: 0 2px 0 rgba(94, 20, 40, 0.6);
+  animation: ribbonShine 3s ease-in-out infinite;
+}
+
+@keyframes ribbonShine {
+  50% {
+    filter: brightness(1.15);
+  }
+}
+
+/* a tap on a "coming soon" card just says no */
+.modeCard.nope {
+  animation: cardNope 0.4s ease-out;
+}
+
+@keyframes cardNope {
+  20% {
+    transform: rotate(-3deg) scale(0.98);
+  }
+  40% {
+    transform: rotate(3deg);
+  }
+  60% {
+    transform: rotate(-2deg);
+  }
+  80% {
+    transform: rotate(1deg);
+  }
+}
+
+/* just unlocked: a golden flash */
+.modeCard.unlocking {
+  animation: unlockFlash 1.2s ease-out;
+}
+
+@keyframes unlockFlash {
+  0% {
+    box-shadow: 0 6px 0 var(--wood), 0 0 0 0 rgba(255, 216, 74, 0.9);
+  }
+  40% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 0 var(--wood), 0 0 40px 18px rgba(255, 216, 74, 0.8);
+  }
+}
+
+.unlockDialog {
+  width: min(420px, calc(100vw - 32px));
+}
+
+.unlockPass {
+  flex: 1;
+  min-width: 0;
+  padding-left: 1rem;
+  background: var(--tan-lite);
+}
+
+/* the Guess Who logo leads back to the menu */
+.sheet .logo {
+  cursor: pointer;
+}

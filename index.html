@@ -7,10 +7,34 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Figtree:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261101-1159">
+<link rel="stylesheet" href="style.css?v=20261121-1327">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
+
+<!-- game mode menu: shown first; modes.js -->
+<section id="modes" class="modes" aria-labelledby="modesTitle" hidden>
+  <div class="modesSheet">
+    <h1 class="modesLogo"><img src="images/logo.png" alt="Cookie Run Guess Who"></h1>
+    <h2 id="modesTitle" class="modesTitle">Pick a game mode</h2>
+    <div class="modeCards">
+      <button id="modeWho" class="modeCard" type="button">
+        <span class="modeArt whoArt" aria-hidden="true"></span>
+        <span class="modeName">Guess Who</span>
+        <span class="modeText">Pick a secret cookie and find your friend's before they find yours!</span>
+        <span class="btn modePlay">Play</span>
+      </button>
+      <button id="modeGender" class="modeCard soon" type="button">
+        <span class="soonRibbon" aria-hidden="true">Coming soon</span>
+        <span class="modeArt genderArt" aria-hidden="true"></span>
+        <span class="modeName">Guess the Gender</span>
+        <span class="modeText modeSoonText">New game mode coming soon!</span>
+        <span class="modeText modeTesterText">Testers only: tap the right pronouns before you run out of hearts!</span>
+        <span class="btn modePlay">Play</span>
+      </button>
+    </div>
+  </div>
+</section>
 <main class="folder">
   <section class="sheet">
     <h1 class="logo">
@@ -169,6 +193,20 @@
     <div id="allPicsGrid" class="allPicsGrid"></div>
   </div>
 </dialog>
+<dialog id="unlockDialog" class="boardDialog unlockDialog" aria-labelledby="unlockTitle">
+  <header class="dlgHead">
+    <h2 id="unlockTitle">Tester access</h2>
+    <button id="unlockClose" class="ghost" type="button">Close</button>
+  </header>
+  <form id="unlockForm" class="boardBody">
+    <p class="boardIntro">Enter the tester password.</p>
+    <div class="joinRow">
+      <input id="unlockPass" class="find unlockPass" type="password" autocomplete="off" aria-label="Tester password" required>
+      <button class="btn" type="submit">Unlock</button>
+    </div>
+    <p id="unlockMsg" class="joinMsg" aria-live="polite"></p>
+  </form>
+</dialog>
 <div id="stage" class="stage" role="dialog" aria-modal="true" aria-labelledby="stageTitle" hidden>
   <div class="stageRays" aria-hidden="true"></div>
   <div class="stageInner">
@@ -195,11 +233,12 @@
   </div>
 </div>
 
-<script src="stats-config.js?v=20261101-1159"></script>
-<script src="stats.js?v=20261101-1159"></script>
-<script src="cookies.js?v=20261101-1159"></script>
-<script src="backgrounds.js?v=20261101-1159"></script>
-<script src="app.js?v=20261101-1159"></script>
-<script src="fx.js?v=20261101-1159"></script>
+<script src="stats-config.js?v=20261121-1327"></script>
+<script src="stats.js?v=20261121-1327"></script>
+<script src="cookies.js?v=20261121-1327"></script>
+<script src="backgrounds.js?v=20261121-1327"></script>
+<script src="modes.js?v=20261121-1327"></script>
+<script src="app.js?v=20261121-1327"></script>
+<script src="fx.js?v=20261121-1327"></script>
 </body>
 </html>

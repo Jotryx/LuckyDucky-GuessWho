@@ -1,3 +1,8 @@
 # local Cloudflare/Wrangler files and tools: never commit
 .wrangler/
 node_modules/
+
+# private: the Guess the Gender mode and its data are served only by the Worker after the password,
+# so they must never be in this (public) repo
+message.txt
+worker/private/
