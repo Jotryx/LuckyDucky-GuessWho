@@ -60,8 +60,8 @@
   }
 
   $("modeWho").onclick = () => leaveMenu($("modeWho"), () => show("who"));
-  // back to the menu from Guess Who: the Modes button, or the logo
-  document.querySelectorAll(".modesBtn").forEach((b) => (b.onclick = () => show("menu")));
+  // back to the menu from Guess Who: the "Game modes" link under the folder, or the logo
+  document.querySelector(".modesLink").onclick = () => show("menu");
   document.querySelector(".sheet .logo")?.addEventListener("click", () => show("menu"));
 
   // ---------- Guess the Gender: tester access ----------
