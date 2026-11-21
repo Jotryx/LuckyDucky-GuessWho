@@ -2679,6 +2679,18 @@ body[data-screen="gender"] .folder {
   border-radius: 6px;
 }
 
+/* the LuckyDucky YouTube badge on the menu (and Guess the Gender): on phones it sits under the logo */
+@media (max-width: 860px) {
+  .modesSheet .yt {
+    position: relative;
+    right: auto;
+    top: auto;
+    width: fit-content;
+    margin: -0.4rem auto 0.9rem;
+    rotate: -2deg;
+  }
+}
+
 /* the Guess Who logo leads back to the menu */
 .sheet .logo {
   cursor: pointer;
