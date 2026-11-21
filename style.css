@@ -2695,3 +2695,8 @@ body[data-screen="gender"] .folder {
 .sheet .logo {
   cursor: pointer;
 }
+
+/* Background picker on the mode menu */
+.modesBg {
+  margin-top: 1.2rem;
+}
