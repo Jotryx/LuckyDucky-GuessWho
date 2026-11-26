@@ -492,16 +492,10 @@
     return b;
   }
   function buildBgList() {
-    const list = $("bgList");
-    const groups = new Map([["", DEFAULTS.map((d) => bgOption(d.name, d.src, true))]]);
-    backgrounds.forEach((bg) => {
-      if (!groups.has(bg.group)) groups.set(bg.group, []);
-      groups.get(bg.group).push(bgOption(bg.name, bg.src, false));
-    });
-    groups.forEach((items, name) => {
-      if (name) { const h = document.createElement("h3"); h.textContent = name; list.append(h); }
-      const g = document.createElement("div"); g.className = "bgGrid"; g.append(...items); list.append(g);
-    });
+    // one grid, no group headings: the defaults first, then every background in its group's order
+    const g = document.createElement("div"); g.className = "bgGrid";
+    g.append(...DEFAULTS.map((d) => bgOption(d.name, d.src, true)), ...backgrounds.map((bg) => bgOption(bg.name, bg.src, false)));
+    $("bgList").append(g);
   }
   buildBgList();
   document.querySelectorAll(".bgBtn").forEach((b) => (b.onclick = () => $("bgDialog").showModal()));
