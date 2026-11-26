@@ -968,6 +968,11 @@ window.COOKIES = [
     "src": "images/04-epic/tiger-lily-cookie.webp"
   },
   {
+    "name": "Traffic Candy Cookie",
+    "rarity": "Epic",
+    "src": "images/04-epic/traffic-candy-cookie.webp"
+  },
+  {
     "name": "Twizzly Gummy Cookie",
     "rarity": "Epic",
     "src": "images/04-epic/twizzly-gummy-cookie.webp"
@@ -1076,6 +1081,11 @@ window.COOKIES = [
     "name": "Black Pearl Cookie",
     "rarity": "Legendary",
     "src": "images/07-legendary/black-pearl-cookie.webp"
+  },
+  {
+    "name": "Bouchéael Cookie",
+    "rarity": "Legendary",
+    "src": "images/07-legendary/boucheael-cookie.webp"
   },
   {
     "name": "Fire Spirit Cookie",
